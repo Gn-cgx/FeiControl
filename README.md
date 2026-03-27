@@ -1,10 +1,10 @@
-# 🦐 FeiControl
+# FeiControl
 
-> ✨ A cute little mission control for your [OpenClaw](https://openclaw.ai) AI agent team ~
+> 💖 A cute little mission control for your [OpenClaw](https://openclaw.ai)  ~
 
-FeiControl is a real-time dashboard that sits alongside your OpenClaw installation. It reads agents, sessions, memory, and logs straight from the filesystem — no extra backend needed! 💖
+FeiControl is a real-time dashboard that sits alongside your OpenClaw installation. It reads agents, sessions, memory, and logs straight from the filesystem — no extra backend needed! 
 
-> Adapted from [TenacitOS](https://github.com/carlosazaustre/tenacitOS) 🙏 — see [ATTRIBUTION.md](./ATTRIBUTION.md)
+> Fork from [TenacitOS](https://github.com/carlosazaustre/tenacitOS) 🙏 — see [ATTRIBUTION.md](./ATTRIBUTION.md)
 
 ---
 
@@ -17,17 +17,8 @@ npm install
 cp .env.example .env.local   # edit with your password & secrets ✏️
 ```
 
-Initialize data files:
 
-```bash
-cp data/cron-jobs.example.json data/cron-jobs.json
-cp data/activities.example.json data/activities.json
-cp data/notifications.example.json data/notifications.json
-cp data/configured-skills.example.json data/configured-skills.json
-cp data/tasks.example.json data/tasks.json
-```
-
-Then run! 🎀
+Then run! 
 
 ```bash
 npm run dev          # dev → http://localhost:3000
@@ -39,7 +30,7 @@ npm run build && npm start   # production ✨
 
 ---
 
-## 🖼️ Screenshots
+## Screenshots
 
 **🏠 Dashboard** — greeting, system health, agent team status & daily heartbeat
 
@@ -75,7 +66,7 @@ npm run build && npm start   # production ✨
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 - **Node.js** 18+ (tested with v22)
 - **[OpenClaw](https://openclaw.ai)** running on the same host
@@ -83,7 +74,7 @@ npm run build && npm start   # production ✨
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | | |
 |---|---|
@@ -95,7 +86,7 @@ npm run build && npm start   # production ✨
 
 ---
 
-## 💕 Contributing
+## Contributing
 
 1. Fork & create a feature branch
 2. Keep secrets in `.env.local` (gitignored~)
@@ -105,16 +96,15 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for details!
 
 ---
 
-## 📜 License
+## License
 
 MIT — see [LICENSE](./LICENSE)
 
 ---
 
-## 🔗 Links
+## Links
 
-- [OpenClaw](https://openclaw.ai) 🦞
+- [OpenClaw](https://openclaw.ai) 
 - [OpenClaw Docs](https://docs.openclaw.ai)
-- [Discord](https://discord.com/invite/clawd) 💬
 - [Issues](../../issues) — bugs & feature requests
-- [ATTRIBUTION.md](./ATTRIBUTION.md) — upstream credits 💖
+- [ATTRIBUTION.md](./ATTRIBUTION.md) — upstream credits 
