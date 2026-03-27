@@ -1,0 +1,810 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { RefreshCw, CheckSquare, Square, ChevronLeft, ChevronRight } from "lucide-react";
+import StudySection from "@/components/StudySection";
+
+interface CalendarEvent {
+  key: string;
+  date: string;
+  time: string;
+  title: string;
+  allDay: boolean;
+}
+
+interface Task {
+  id: string;
+  title: string;
+  completed: boolean;
+  indent: number;
+}
+
+interface TasksData {
+  tasks: Task[];
+  pending: number;
+  completed: number;
+}
+
+type EventCompletionState = Record<string, boolean>;
+
+const DAY_LABELS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+const EVENT_COMPLETION_STORAGE_KEY = "mission-control-calendar-event-completions";
+
+function getPSTNow() {
+  const now = new Date();
+  const pstStr = now.toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" });
+  const [y, m, d] = pstStr.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function getWeekDays(offset: number): { dates: string[]; label: string } {
+  const now = getPSTNow();
+  const day = now.getDay();
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diffToMonday + offset * 7);
+
+  const dates: string[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    dates.push(
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+    );
+  }
+
+  const sun = new Date(monday);
+  sun.setDate(monday.getDate() + 6);
+  const label = `${monday.getMonth() + 1}/${monday.getDate()} – ${sun.getMonth() + 1}/${sun.getDate()}`;
+
+  return { dates, label };
+}
+
+function shortDate(iso: string): string {
+  const [, m, d] = iso.split("-");
+  return `${parseInt(m)}/${parseInt(d)}`;
+}
+
+function getEventKey(event: Omit<CalendarEvent, "key">): string {
+  return `${event.date}|${event.time}|${event.allDay ? "1" : "0"}|${event.title}`;
+}
+
+function extractDisplayTitle(fullTitle: string): string {
+  // Strip URLs
+  let cleaned = fullTitle.replace(/https?:\/\/\S+/gi, "").trim();
+  // Split on common separators and take the first meaningful part
+  const separators = /\s*[|·–—]\s*/;
+  const firstPart = cleaned.split(separators)[0].trim();
+  if (firstPart.length < 3) cleaned = cleaned.length > 40 ? cleaned.slice(0, 40) + "…" : cleaned;
+  else cleaned = firstPart;
+  // Final cleanup: collapse whitespace
+  return cleaned.replace(/\s+/g, " ").trim() || fullTitle.slice(0, 30);
+}
+
+function getErrorMessage(payload: unknown, fallback: string): string {
+  if (payload && typeof payload === "object") {
+    const error = (payload as Record<string, unknown>).error;
+    if (typeof error === "string" && error.trim()) {
+      return error;
+    }
+  }
+
+  return fallback;
+}
+
+function normalizeTasksData(payload: unknown): TasksData {
+  if (!payload || typeof payload !== "object") {
+    return { tasks: [], pending: 0, completed: 0 };
+  }
+
+  const record = payload as Record<string, unknown>;
+  const rawTasks = Array.isArray(record.tasks) ? record.tasks : [];
+  const tasks = rawTasks
+    .map((item) => {
+      if (!item || typeof item !== "object") {
+        return null;
+      }
+
+      const taskRecord = item as Record<string, unknown>;
+      const id = typeof taskRecord.id === "string" ? taskRecord.id : "";
+      const title = typeof taskRecord.title === "string" ? taskRecord.title : "";
+
+      if (!id || !title) {
+        return null;
+      }
+
+      return {
+        id,
+        title,
+        completed: taskRecord.completed === true,
+        indent: typeof taskRecord.indent === "number" ? taskRecord.indent : 0,
+      };
+    })
+    .filter((task): task is Task => task !== null);
+
+  return {
+    tasks,
+    pending:
+      typeof record.pending === "number"
+        ? record.pending
+        : tasks.filter((task) => !task.completed).length,
+    completed:
+      typeof record.completed === "number"
+        ? record.completed
+        : tasks.filter((task) => task.completed).length,
+  };
+}
+
+function normalizeCalendarData(payload: unknown): {
+  events: CalendarEvent[];
+  today: string;
+  completions: EventCompletionState;
+} {
+  if (!payload || typeof payload !== "object") {
+    return { events: [], today: "", completions: {} };
+  }
+
+  const record = payload as Record<string, unknown>;
+  const rawEvents = Array.isArray(record.events) ? record.events : [];
+  const events = rawEvents
+    .map((item) => {
+      if (!item || typeof item !== "object") {
+        return null;
+      }
+
+      const eventRecord = item as Record<string, unknown>;
+      const date = typeof eventRecord.date === "string" ? eventRecord.date : "";
+      const time = typeof eventRecord.time === "string" ? eventRecord.time : "";
+      const title = typeof eventRecord.title === "string" ? eventRecord.title : "";
+      const allDay = eventRecord.allDay === true;
+
+      if (!date || !time || !title) {
+        return null;
+      }
+
+      const key =
+        typeof eventRecord.key === "string" && eventRecord.key.trim()
+          ? eventRecord.key
+          : getEventKey({ date, time, title, allDay });
+
+      return {
+        key,
+        date,
+        time,
+        title,
+        allDay,
+      };
+    })
+    .filter((event): event is CalendarEvent => event !== null);
+
+  return {
+    events,
+    today: typeof record.today === "string" ? record.today : "",
+    completions: normalizeEventCompletionState(record.completions),
+  };
+}
+
+function normalizeEventCompletionState(payload: unknown): EventCompletionState {
+  if (!payload || typeof payload !== "object") {
+    return {};
+  }
+
+  const nextState: EventCompletionState = {};
+  for (const [key, value] of Object.entries(payload as Record<string, unknown>)) {
+    if (typeof value === "boolean" && value) {
+      nextState[key] = true;
+    }
+  }
+
+  return nextState;
+}
+
+export default function CalendarPage() {
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [todayStr, setTodayStr] = useState("");
+  const [tasks, setTasks] = useState<TasksData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [weekOffset, setWeekOffset] = useState(0);
+  const [calendarError, setCalendarError] = useState("");
+  const [tasksError, setTasksError] = useState("");
+  const [eventCompletionError, setEventCompletionError] = useState("");
+  const [eventCompletions, setEventCompletions] = useState<EventCompletionState>({});
+  const [togglingEventKeys, setTogglingEventKeys] = useState<Record<string, boolean>>({});
+  const [togglingTaskIds, setTogglingTaskIds] = useState<Record<string, boolean>>({});
+
+  const week = useMemo(() => getWeekDays(weekOffset), [weekOffset]);
+
+  const maybeMigrateLegacyEventCompletions = useCallback(async (serverState: EventCompletionState) => {
+    if (typeof window === "undefined") {
+      return serverState;
+    }
+
+    try {
+      const stored = window.localStorage.getItem(EVENT_COMPLETION_STORAGE_KEY);
+      if (!stored) {
+        setEventCompletionError("");
+        return serverState;
+      }
+
+      const legacyState = normalizeEventCompletionState(JSON.parse(stored) as unknown);
+      if (Object.keys(legacyState).length === 0) {
+        window.localStorage.removeItem(EVENT_COMPLETION_STORAGE_KEY);
+        setEventCompletionError("");
+        return serverState;
+      }
+
+      const needsMigration = Object.keys(legacyState).some((key) => !serverState[key]);
+      if (!needsMigration) {
+        window.localStorage.removeItem(EVENT_COMPLETION_STORAGE_KEY);
+        setEventCompletionError("");
+        return serverState;
+      }
+
+      const response = await fetch("/api/calendar", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ completions: legacyState }),
+      });
+      const payload = await response.json().catch((): unknown => null);
+
+      if (!response.ok) {
+        throw new Error(getErrorMessage(payload, "无法迁移旧的日程完成状态"));
+      }
+
+      const mergedState = normalizeEventCompletionState(
+        payload && typeof payload === "object"
+          ? (payload as Record<string, unknown>).completions
+          : null
+      );
+
+      window.localStorage.removeItem(EVENT_COMPLETION_STORAGE_KEY);
+      setEventCompletionError("");
+      return mergedState;
+    } catch (error) {
+      console.error("Failed to migrate legacy event completion state:", error);
+      setEventCompletionError(
+        error instanceof Error ? error.message : "无法迁移旧的日程完成状态"
+      );
+      return serverState;
+    }
+  }, []);
+
+  // Fetch only tasks (used by auto-polling)
+  const fetchTasks = useCallback(async () => {
+    setTasksError("");
+    try {
+      const res = await fetch("/api/tasks");
+      const payload = await res.json().catch((): unknown => null);
+      if (res.ok) {
+        setTasks(normalizeTasksData(payload));
+      } else {
+        setTasksError(getErrorMessage(payload, "无法获取 Google Tasks"));
+      }
+    } catch (error) {
+      console.error("Failed to poll tasks:", error);
+      setTasksError("自动刷新 Google Tasks 失败");
+    }
+  }, []);
+
+  const fetchData = useCallback(async (offset: number) => {
+    setLoading(true);
+    setCalendarError("");
+    setTasksError("");
+
+    const currentWeek = getWeekDays(offset);
+
+    try {
+      const [calRes, taskRes] = await Promise.all([
+        fetch(`/api/calendar?from=${currentWeek.dates[0]}&to=${currentWeek.dates[6]}`),
+        fetch("/api/tasks"),
+      ]);
+      const [calendarPayload, taskPayload] = await Promise.all([
+        calRes.json().catch((): unknown => null),
+        taskRes.json().catch((): unknown => null),
+      ]);
+
+      if (calRes.ok) {
+        const calendarData = normalizeCalendarData(calendarPayload);
+        setEvents(calendarData.events);
+        setTodayStr(calendarData.today);
+        setEventCompletions(
+          await maybeMigrateLegacyEventCompletions(calendarData.completions)
+        );
+      } else {
+        setEvents([]);
+        setTodayStr("");
+        setCalendarError(getErrorMessage(calendarPayload, "无法获取日程"));
+      }
+
+      if (taskRes.ok) {
+        setTasks(normalizeTasksData(taskPayload));
+      } else {
+        setTasksError(getErrorMessage(taskPayload, "无法获取 Google Tasks"));
+        setTasks((current) => current ?? { tasks: [], pending: 0, completed: 0 });
+      }
+    } catch (error) {
+      console.error("Failed to fetch calendar page data:", error);
+      setEvents([]);
+      setTodayStr("");
+      setCalendarError("加载日程失败");
+      setTasksError("加载 Google Tasks 失败");
+      setTasks((current) => current ?? { tasks: [], pending: 0, completed: 0 });
+    } finally {
+      setLoading(false);
+    }
+  }, [maybeMigrateLegacyEventCompletions]);
+
+  const toggleTask = useCallback(async (task: Task, nextCompleted: boolean) => {
+    setTasksError("");
+    setTogglingTaskIds((current) => ({ ...current, [task.id]: true }));
+
+    try {
+      const response = await fetch("/api/tasks", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ taskId: task.id, completed: nextCompleted }),
+      });
+      const payload = await response.json().catch((): unknown => null);
+
+      if (!response.ok) {
+        throw new Error(getErrorMessage(payload, "无法同步 Google Tasks"));
+      }
+
+      setTasks(normalizeTasksData(payload));
+    } catch (error) {
+      console.error("Failed to toggle Google Task:", error);
+      setTasksError(error instanceof Error ? error.message : "无法同步 Google Tasks");
+    } finally {
+      setTogglingTaskIds((current) => {
+        const nextState = { ...current };
+        delete nextState[task.id];
+        return nextState;
+      });
+    }
+  }, []);
+
+  const toggleEventCompletion = useCallback(async (event: CalendarEvent) => {
+    const eventKey = event.key;
+    const nextCompleted = !Boolean(eventCompletions[eventKey]);
+
+    setEventCompletionError("");
+    setTogglingEventKeys((current) => ({ ...current, [eventKey]: true }));
+    setEventCompletions((current) => {
+      const nextState = { ...current };
+
+      if (nextCompleted) {
+        nextState[eventKey] = true;
+      } else {
+        delete nextState[eventKey];
+      }
+
+      return nextState;
+    });
+
+    try {
+      const response = await fetch("/api/calendar", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ key: eventKey, completed: nextCompleted }),
+      });
+      const payload = await response.json().catch((): unknown => null);
+
+      if (!response.ok) {
+        throw new Error(getErrorMessage(payload, "无法保存日程完成状态"));
+      }
+
+      const nextState = normalizeEventCompletionState(
+        payload && typeof payload === "object"
+          ? (payload as Record<string, unknown>).completions
+          : null
+      );
+      setEventCompletions(nextState);
+    } catch (error) {
+      console.error("Failed to update event completion:", error);
+      setEventCompletions((current) => {
+        const nextState = { ...current };
+
+        if (nextCompleted) {
+          delete nextState[eventKey];
+        } else {
+          nextState[eventKey] = true;
+        }
+
+        return nextState;
+      });
+      setEventCompletionError(
+        error instanceof Error ? error.message : "无法保存日程完成状态"
+      );
+    } finally {
+      setTogglingEventKeys((current) => {
+        const nextState = { ...current };
+        delete nextState[eventKey];
+        return nextState;
+      });
+    }
+  }, [eventCompletions]);
+
+  useEffect(() => {
+    void fetchData(weekOffset);
+  }, [weekOffset, fetchData]);
+
+  // Auto-poll tasks every 30s; pause when tab is hidden, refresh immediately on return
+  useEffect(() => {
+    const POLL_INTERVAL = 30_000;
+    let timerId: ReturnType<typeof setInterval> | null = null;
+
+    const startPolling = () => {
+      stopPolling();
+      timerId = setInterval(() => {
+        void fetchTasks();
+      }, POLL_INTERVAL);
+    };
+
+    const stopPolling = () => {
+      if (timerId !== null) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopPolling();
+      } else {
+        // Tab became visible again — refresh immediately then resume polling
+        void fetchTasks();
+        startPolling();
+      }
+    };
+
+    // Start polling right away (first fetch already done by fetchData)
+    startPolling();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      stopPolling();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [fetchTasks]);
+
+  const eventsByDate = useMemo(() => {
+    const grouped: Record<string, CalendarEvent[]> = {};
+
+    for (const event of events) {
+      if (!grouped[event.date]) {
+        grouped[event.date] = [];
+      }
+      grouped[event.date].push(event);
+    }
+
+    for (const date of Object.keys(grouped)) {
+      grouped[date].sort((a, b) => {
+        if (a.allDay && !b.allDay) return -1;
+        if (!a.allDay && b.allDay) return 1;
+        return a.time.localeCompare(b.time);
+      });
+    }
+
+    return grouped;
+  }, [events]);
+
+  const pendingTasks = useMemo(
+    () => tasks?.tasks.filter((task) => !task.completed) ?? [],
+    [tasks]
+  );
+  const completedTasks = useMemo(
+    () => tasks?.tasks.filter((task) => task.completed) ?? [],
+    [tasks]
+  );
+
+  const renderTaskRow = (task: Task, nextCompleted: boolean) => {
+    const isCompleted = task.completed;
+    const isToggling = Boolean(togglingTaskIds[task.id]);
+
+    return (
+      <button
+        type="button"
+        key={task.id}
+        onClick={() => {
+          void toggleTask(task, nextCompleted);
+        }}
+        disabled={isToggling}
+        title={isCompleted ? "点击恢复为未完成" : "点击标记为已完成"}
+        aria-label={isCompleted ? `将 ${task.title} 标记为未完成` : `将 ${task.title} 标记为已完成`}
+        className="flex items-center gap-3 rounded-lg text-left transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20 hover:brightness-110 disabled:cursor-not-allowed"
+        style={{
+          backgroundColor: "var(--card-elevated)",
+          border: "1px solid var(--border)",
+          marginLeft: `${task.indent * 20}px`,
+          opacity: isToggling ? 0.7 : isCompleted ? 0.55 : 1,
+          padding: isCompleted ? "0.625rem 0.75rem" : "0.75rem",
+          width: task.indent > 0 ? `calc(100% - ${task.indent * 20}px)` : "100%",
+        }}
+      >
+        {isToggling ? (
+          <RefreshCw className="w-4 h-4 flex-shrink-0 animate-spin" style={{ color: "var(--text-muted)" }} />
+        ) : isCompleted ? (
+          <CheckSquare className="w-4 h-4 flex-shrink-0" style={{ color: "var(--positive)" }} />
+        ) : (
+          <Square className="w-4 h-4 flex-shrink-0" style={{ color: "var(--accent)" }} />
+        )}
+        <span className={`text-sm ${isCompleted ? "line-through" : ""}`} style={{ color: isCompleted ? "var(--text-muted)" : "var(--text-primary)" }}>
+          {task.title}
+        </span>
+      </button>
+    );
+  };
+
+  return (
+    <div className="p-4 md:p-8 max-w-[1400px] mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1
+            className="text-2xl md:text-3xl font-bold"
+            style={{ fontFamily: "var(--font-heading)", color: "var(--text-primary)", letterSpacing: "-1px" }}
+          >
+            📅 日程
+          </h1>
+          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+            Google Calendar · Google Tasks
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1" style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "10px", padding: "2px" }}>
+            <button
+              onClick={() => setWeekOffset((offset) => offset - 1)}
+              className="p-2 rounded-lg transition-all hover:opacity-80"
+              style={{ color: "var(--text-primary)" }}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setWeekOffset(0)}
+              className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+              style={{
+                backgroundColor: weekOffset === 0 ? "var(--accent)" : "transparent",
+                color: "var(--text-primary)",
+              }}
+            >
+              本周
+            </button>
+            <button
+              onClick={() => setWeekOffset((offset) => offset + 1)}
+              className="p-2 rounded-lg transition-all hover:opacity-80"
+              style={{ color: "var(--text-primary)" }}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+          <button
+            onClick={() => {
+              void fetchData(weekOffset);
+            }}
+            disabled={loading}
+            className="p-2 rounded-lg transition-all"
+            style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", color: "var(--text-primary)", opacity: loading ? 0.5 : 1 }}
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+          </button>
+        </div>
+      </div>
+
+      {/* Week label */}
+      <div className="mb-4 text-sm font-mono" style={{ color: "var(--text-muted)" }}>
+        {week.label}
+      </div>
+
+      {(calendarError || eventCompletionError) && (
+        <div className="mb-4 space-y-1">
+          {calendarError && (
+            <p className="text-xs" style={{ color: "#FF453A" }}>
+              {calendarError}
+            </p>
+          )}
+          {eventCompletionError && (
+            <p className="text-xs" style={{ color: "#FF9F0A" }}>
+              {eventCompletionError}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* ===== 7-Day Grid ===== */}
+      <div className="grid grid-cols-7 gap-2 mb-8">
+        {week.dates.map((date, i) => {
+          const isToday = date === todayStr;
+          const dayEvents = eventsByDate[date] || [];
+          const hasEvents = dayEvents.length > 0;
+
+          return (
+            <div
+              key={date}
+              className="rounded-xl flex flex-col min-h-[200px] overflow-hidden transition-all"
+              style={{
+                backgroundColor: "var(--card)",
+                border: isToday ? "2px solid #34C759" : "1px solid var(--border)",
+                boxShadow: isToday ? "0 0 12px rgba(52,199,89,0.15)" : "none",
+              }}
+            >
+              {/* Day header */}
+              <div
+                className="px-3 py-2 text-center"
+                style={{
+                  backgroundColor: isToday ? "rgba(52,199,89,0.12)" : "var(--card-elevated)",
+                  borderBottom: "1px solid var(--border)",
+                }}
+              >
+                <div className="text-base font-medium" style={{ color: isToday ? "#34C759" : "var(--text-muted)" }}>
+                  {DAY_LABELS[i]}
+                </div>
+                <div
+                  className="text-2xl font-bold"
+                  style={{ color: isToday ? "#34C759" : "var(--text-primary)", fontFamily: "var(--font-heading)" }}
+                >
+                  {shortDate(date)}
+                </div>
+              </div>
+
+              {/* Events */}
+              <div className="flex-1 p-2 space-y-1.5">
+                {loading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="w-3 h-3 rounded-full animate-pulse" style={{ backgroundColor: "var(--border)" }} />
+                  </div>
+                ) : hasEvents ? (
+                  dayEvents.map((event) => {
+                    const eventKey = event.key;
+                    const isEventCompleted = Boolean(eventCompletions[eventKey]);
+                    const isEventToggling = Boolean(togglingEventKeys[eventKey]);
+
+                    return (
+                      <div
+                        key={eventKey}
+                        onClick={() => {
+                          if (!isEventToggling) {
+                            void toggleEventCompletion(event);
+                          }
+                        }}
+                        className={`group p-2 rounded-lg text-xs transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-xl hover:shadow-black/10 hover:-translate-y-1 hover:brightness-110 ${
+                          isEventToggling ? "cursor-not-allowed" : "cursor-pointer"
+                        }`}
+                        style={{
+                          backgroundColor: isToday ? "rgba(52,199,89,0.08)" : "var(--card-elevated)",
+                          border: `1px solid ${isToday ? "rgba(52,199,89,0.2)" : "var(--border)"}`,
+                          opacity: isEventToggling ? 0.6 : isEventCompleted ? 0.72 : 1,
+                          ...(isToday ? { boxShadow: "0 0 8px rgba(52,199,89,0.25)" } : {}),
+                        }}
+                      >
+                        <div className="flex items-start gap-2">
+                          <button
+                            type="button"
+                            title={isEventCompleted ? "点击恢复为未完成" : "点击标记为已完成"}
+                            aria-label={isEventCompleted ? `将 ${event.title} 标记为未完成` : `将 ${event.title} 标记为已完成`}
+                            className="mt-0.5 rounded-md transition-all hover:opacity-80 pointer-events-none"
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: isEventCompleted ? "var(--positive)" : "var(--text-muted)",
+                              cursor: "pointer",
+                              padding: 0,
+                            }}
+                          >
+                            {isEventToggling ? (
+                              <RefreshCw className="w-4 h-4 animate-spin" />
+                            ) : isEventCompleted ? (
+                              <CheckSquare className="w-4 h-4" />
+                            ) : (
+                              <Square className="w-4 h-4" />
+                            )}
+                          </button>
+                          <div className="min-w-0 flex-1">
+                            <div
+                              className="font-mono font-semibold mb-0.5"
+                              style={{
+                                color: isToday ? "#34C759" : "var(--accent)",
+                                fontSize: "12px",
+                                opacity: isEventCompleted ? 0.7 : 1,
+                              }}
+                            >
+                              {event.time}
+                            </div>
+                            <div
+                              className={`font-medium leading-snug ${isEventCompleted ? "line-through" : ""}`}
+                              style={{ color: isEventCompleted ? "var(--text-muted)" : "var(--text-primary)", fontSize: "13px" }}
+                              title={event.title}
+                            >
+                              {extractDisplayTitle(event.title)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <span className="text-xs" style={{ color: "var(--text-muted)", opacity: 0.4 }}>—</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ===== 学习 + Google Tasks 并排 ===== */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 学习 Section (左) */}
+        <StudySection />
+
+        {/* Google Tasks (右) */}
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)" }}
+        >
+        <div
+          className="flex items-center justify-between px-5 py-4"
+          style={{ borderBottom: "1px solid var(--border)" }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="accent-line" />
+            <h2
+              className="text-lg font-bold"
+              style={{ fontFamily: "var(--font-heading)", color: "var(--text-primary)" }}
+            >
+              ✅ Google Tasks
+            </h2>
+          </div>
+          {tasks && (
+            <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+              待完成 {tasks.pending} / 共 {tasks.tasks.length}
+            </span>
+          )}
+        </div>
+        <div className="p-5">
+          {tasksError && (
+            <p className="mb-3 text-xs" style={{ color: "#FF453A" }}>
+              {tasksError}
+            </p>
+          )}
+
+          {loading ? (
+            <p style={{ color: "var(--text-muted)" }}>加载中...</p>
+          ) : tasks && tasks.tasks.length > 0 ? (
+            <div className="space-y-3">
+              {pendingTasks.length > 0 ? (
+                <div className="space-y-2">{pendingTasks.map((task) => renderTaskRow(task, true))}</div>
+              ) : completedTasks.length > 0 ? (
+                <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>🎉 所有任务已完成！</p>
+              ) : null}
+
+              {completedTasks.length > 0 && (
+                <details className="mt-3" open={pendingTasks.length === 0}>
+                  <summary className="text-xs cursor-pointer" style={{ color: "var(--text-muted)" }}>
+                    已完成（{completedTasks.length}）
+                  </summary>
+                  <div className="space-y-2 mt-2">
+                    {completedTasks.map((task) => renderTaskRow(task, false))}
+                  </div>
+                </details>
+              )}
+            </div>
+          ) : tasks ? (
+            <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>暂无 Google Tasks</p>
+          ) : (
+            <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
+              {tasksError || "暂无任务数据"}
+            </p>
+          )}
+        </div>
+      </div>
+      </div>{/* end grid */}
+    </div>
+  );
+}
