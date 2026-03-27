@@ -35,11 +35,11 @@ interface SocialData {
 
 /* ─── Category color map ─── */
 const CAT_COLORS: Record<string, { bg: string; color: string }> = {
-  人设建立: { bg: "rgba(191,90,242,0.15)", color: "#bf5af2" },
-  干货分享: { bg: "rgba(10,132,255,0.15)", color: "#0a84ff" },
-  情感共鸣: { bg: "rgba(255,69,58,0.15)", color: "#ff453a" },
-  喊单引流: { bg: "rgba(255,159,10,0.15)", color: "#ff9f0a" },
-  AI相关: { bg: "rgba(48,209,88,0.15)", color: "#30d158" },
+  Branding: { bg: "rgba(191,90,242,0.15)", color: "#bf5af2" },
+  "Knowledge Sharing": { bg: "rgba(10,132,255,0.15)", color: "#0a84ff" },
+  "Emotional Connection": { bg: "rgba(255,69,58,0.15)", color: "#ff453a" },
+  "Call-to-Action": { bg: "rgba(255,159,10,0.15)", color: "#ff9f0a" },
+  "AI Related": { bg: "rgba(48,209,88,0.15)", color: "#30d158" },
 };
 
 /* ─── Helpers ─── */
@@ -93,8 +93,8 @@ function PostModal({
   onClose: () => void;
 }) {
   const isLinkedin = post.platform === "linkedin";
-  const platformLabel = isLinkedin ? "LinkedIn" : "小红书";
-  const statusLabel = post.status === "published" ? "✅ 已发布" : "🕐 计划中";
+  const platformLabel = isLinkedin ? "LinkedIn" : "Xiaohongshu";
+  const statusLabel = post.status === "published" ? "✅ Published" : "🕐 Scheduled";
   const catStyle = CAT_COLORS[post.purpose?.category || ""] || {
     bg: "rgba(255,255,255,0.06)",
     color: "var(--text-secondary)",
@@ -238,7 +238,7 @@ function PostModal({
                 letterSpacing: ".3px",
               }}
             >
-              📌 发帖目的
+              📌 Post Purpose
             </h4>
             {post.purpose.category && (
               <span
@@ -363,7 +363,7 @@ export default function SocialPage() {
   // Category distribution
   const cats: Record<string, number> = {};
   monthPosts.forEach((p) => {
-    const cat = p.purpose?.category || "其他";
+    const cat = p.purpose?.category || "Other";
     cats[cat] = (cats[cat] || 0) + 1;
   });
 
@@ -405,7 +405,7 @@ export default function SocialPage() {
                 fontFamily: "var(--font-heading)",
               }}
             >
-              📱 社媒运营
+              📱 Social Media
             </h2>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <button
@@ -615,7 +615,7 @@ export default function SocialPage() {
                 color: "var(--text-primary)",
               }}
             >
-              📊 本月统计
+              📊 This Month's Stats
             </h3>
             {/* Platform counts */}
             <div
@@ -654,7 +654,7 @@ export default function SocialPage() {
                   color: "var(--text-primary)",
                 }}
               >
-                {linkedinCount} 篇
+                {linkedinCount} posts
               </span>
             </div>
             <div
@@ -684,7 +684,7 @@ export default function SocialPage() {
                     display: "inline-block",
                   }}
                 />
-                小红书
+                Xiaohongshu
               </div>
               <span
                 style={{
@@ -693,7 +693,7 @@ export default function SocialPage() {
                   color: "var(--text-primary)",
                 }}
               >
-                {xhsCount} 篇
+                {xhsCount} posts
               </span>
             </div>
 
@@ -713,7 +713,7 @@ export default function SocialPage() {
                   fontWeight: 600,
                 }}
               >
-                分类分布
+                Category Distribution
               </div>
               {Object.entries(cats).map(([cat, count]) => {
                 const style = CAT_COLORS[cat] || {
@@ -765,7 +765,7 @@ export default function SocialPage() {
                   fontWeight: 600,
                 }}
               >
-                发布状态
+                Publish Status
               </div>
               <div
                 style={{
@@ -776,7 +776,7 @@ export default function SocialPage() {
                   color: "var(--text-secondary)",
                 }}
               >
-                <span>✅ 已发布</span>
+                <span>✅ Published</span>
                 <span>{publishedCount}</span>
               </div>
               <div
@@ -788,7 +788,7 @@ export default function SocialPage() {
                   color: "var(--text-secondary)",
                 }}
               >
-                <span>🕐 计划中</span>
+                <span>🕐 Scheduled</span>
                 <span>{plannedCount}</span>
               </div>
             </div>
@@ -811,7 +811,7 @@ export default function SocialPage() {
                 color: "var(--text-primary)",
               }}
             >
-              📕 小红书
+              📕 Xiaohongshu
             </h3>
             <div style={{ textAlign: "center", padding: "20px 0" }}>
               <span style={{ fontSize: 36, display: "block", marginBottom: 8 }}>
@@ -823,7 +823,7 @@ export default function SocialPage() {
                   fontSize: 13,
                 }}
               >
-                即将上线
+                Coming Soon
               </p>
             </div>
           </div>
@@ -841,7 +841,7 @@ export default function SocialPage() {
             color: "var(--text-muted)",
           }}
         >
-          最后更新：{new Date(data.lastUpdated).toLocaleString("zh-CN", { timeZone: "America/Los_Angeles" })}
+          Last updated: {new Date(data.lastUpdated).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })}
         </p>
       )}
     </div>

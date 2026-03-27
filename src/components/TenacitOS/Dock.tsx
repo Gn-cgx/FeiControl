@@ -14,24 +14,22 @@ import {
   Settings,
   Calendar,
   Share2,
-  Gift,
   Menu,
   X,
 } from "lucide-react";
 import { useState } from "react";
 
 const dockItems = [
-  { href: "/", label: "仪表盘", icon: Home },
-  { href: "/calendar", label: "日程", icon: Calendar },
-  { href: "/social", label: "社媒运营", icon: Share2 },
-  { href: "/files", label: "文件管理", icon: FolderOpen },
-  { href: "/memory", label: "文档阅览", icon: Brain },
-  { href: "/office", label: "3D 办公室", icon: Building2 },
-  { href: "/cron", label: "定时任务", icon: Clock },
-  { href: "/skills", label: "技能管理", icon: Puzzle },
-  { href: "/costs", label: "成本分析", icon: DollarSign },
-  { href: "/surprise", label: "每日惊喜", icon: Gift },
-  { href: "/settings", label: "设置", icon: Settings },
+  { href: "/", label: "Dashboard", icon: Home },
+  { href: "/calendar", label: "Calendar", icon: Calendar },
+  { href: "/social", label: "Social Media", icon: Share2 },
+  { href: "/files", label: "Files", icon: FolderOpen },
+  { href: "/memory", label: "Reports", icon: Brain },
+  { href: "/office", label: "3D Office", icon: Building2 },
+  { href: "/cron", label: "Cron Jobs", icon: Clock },
+  { href: "/skills", label: "Skills", icon: Puzzle },
+  { href: "/costs", label: "Cost Analysis", icon: DollarSign },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 // Mobile: show top 5 in tab bar, rest in "more" drawer
@@ -146,7 +144,7 @@ export function Dock() {
                   : (isOffice ? "rgba(255,255,255,0.4)" : "var(--text-muted)"),
               }}
             >
-              更多
+              More
             </span>
           </button>
         </nav>
@@ -181,7 +179,7 @@ export function Dock() {
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: "16px", fontWeight: 700, color: "var(--text-primary)" }}>更多</span>
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "16px", fontWeight: 700, color: "var(--text-primary)" }}>More</span>
             <button onClick={() => setDrawerOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", padding: "8px" }}>
               <X style={{ width: "20px", height: "20px", color: "var(--text-secondary)" }} />
             </button>

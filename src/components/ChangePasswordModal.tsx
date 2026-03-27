@@ -131,7 +131,7 @@ export function ChangePasswordModal({
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 className="w-full px-4 py-3 pr-12 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500"
-                placeholder="输入当前密码"
+                placeholder="Enter current password"
               />
               <button
                 type="button"
@@ -158,7 +158,7 @@ export function ChangePasswordModal({
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="w-full px-4 py-3 pr-12 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500"
-                placeholder="输入新密码"
+                placeholder="Enter new password"
               />
               <button
                 type="button"
@@ -185,7 +185,7 @@ export function ChangePasswordModal({
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full px-4 py-3 pr-12 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500"
-                placeholder="确认新密码"
+                placeholder="Confirm new password"
               />
               <button
                 type="button"
@@ -221,7 +221,7 @@ export function ChangePasswordModal({
                   Updating...
                 </>
               ) : (
-                "更新密码"
+                "Update Password"
               )}
             </button>
           </div>

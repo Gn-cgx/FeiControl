@@ -67,7 +67,7 @@ export default function MemoryPage() {
       const data = await res.json();
       setFiles(data);
     } catch (err) {
-      setError("加载文档树失败");
+      setError("Failed to load file tree");
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -85,7 +85,7 @@ export default function MemoryPage() {
       setContent(data.content);
       setOriginalContent(data.content);
     } catch (err) {
-      setError("加载文件失败");
+      setError("Failed to load file");
       console.error(err);
     }
   }, []);
@@ -104,7 +104,7 @@ export default function MemoryPage() {
   const handleSelectFile = useCallback(
     async (path: string) => {
       if (hasUnsavedChanges) {
-        const confirmed = window.confirm("你有未保存的修改，确定丢弃吗？");
+        const confirmed = window.confirm("You have unsaved changes. Are you sure you want to discard them?");
         if (!confirmed) return;
       }
       setSelectedPath(path);
@@ -115,7 +115,7 @@ export default function MemoryPage() {
 
   const handleWorkspaceSelect = (workspaceId: string) => {
     if (hasUnsavedChanges) {
-      const confirmed = window.confirm("你有未保存的修改，确定丢弃吗？");
+      const confirmed = window.confirm("You have unsaved changes. Are you sure you want to discard them?");
       if (!confirmed) return;
     }
     setSelectedWorkspace(workspaceId);
@@ -152,10 +152,10 @@ export default function MemoryPage() {
             marginBottom: "4px",
           }}
         >
-          文档阅览
+          Documents
         </h1>
         <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--text-secondary)" }}>
-          浏览与编辑各个 agent 的记忆文档、规范和 skills
+          Browse and edit agent memory documents, specs, and skills
         </p>
       </div>
 
@@ -189,7 +189,7 @@ export default function MemoryPage() {
               textTransform: "uppercase",
             }}
           >
-            工作区
+            Workspaces
           </p>
 
           {workspaces.map((workspace) => {
@@ -305,7 +305,7 @@ export default function MemoryPage() {
                   {/* Refresh */}
                   <button
                     onClick={() => selectedWorkspace && loadFileTree(selectedWorkspace)}
-                    title="刷新"
+                    title="Refresh"
                     style={{
                       padding: "5px 7px",
                       borderRadius: "6px",
@@ -351,7 +351,7 @@ export default function MemoryPage() {
                       }}
                       >
                         <Eye size={13} />
-                        阅览
+                        Preview
                       </button>
                     <button
                       onClick={() => setViewMode("edit")}
@@ -371,7 +371,7 @@ export default function MemoryPage() {
                       }}
                       >
                         <Edit3 size={13} />
-                        编辑
+                        Edit
                       </button>
                   </div>
                 </div>
@@ -390,7 +390,7 @@ export default function MemoryPage() {
                 >
                   {isLoading ? (
                     <div style={{ padding: "24px", textAlign: "center", color: "var(--text-secondary)" }}>
-                      加载中...
+                      Loading...
                     </div>
                   ) : error && files.length === 0 ? (
                     <div style={{ padding: "24px", textAlign: "center", color: "var(--negative)" }}>
@@ -437,7 +437,7 @@ export default function MemoryPage() {
                     >
                       <div style={{ textAlign: "center" }}>
                         <Brain style={{ width: "64px", height: "64px", margin: "0 auto 16px", opacity: 0.3 }} />
-                        <p style={{ fontSize: "14px" }}>选择一个文档即可阅览或编辑</p>
+                        <p style={{ fontSize: "14px" }}>Select a document to preview or edit</p>
                       </div>
                     </div>
                   )}
@@ -455,7 +455,7 @@ export default function MemoryPage() {
                 fontSize: "14px",
               }}
             >
-              请选择一个工作区
+              Please select a workspace
             </div>
           )}
         </main>

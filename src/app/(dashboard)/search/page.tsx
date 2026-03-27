@@ -10,10 +10,10 @@ export default function SearchPage() {
           className="text-2xl md:text-3xl font-bold mb-1 md:mb-2"
           style={{ color: "var(--text-primary)", fontFamily: "var(--font-heading)" }}
         >
-          全局搜索
+          Global Search
         </h1>
         <p className="text-sm md:text-base" style={{ color: "var(--text-secondary)" }}>
-          搜索活动、任务和已索引的文档
+          Search activities, tasks, and indexed documents
         </p>
       </div>
 

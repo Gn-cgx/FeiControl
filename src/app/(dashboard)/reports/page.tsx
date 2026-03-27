@@ -108,7 +108,7 @@ export default function ReportsPage() {
               Reports
             </h1>
             <p className="text-xs md:text-sm hidden sm:block" style={{ color: "var(--text-secondary)" }}>
-              分析报告与洞察
+              Analytics reports and insights
             </p>
           </div>
         </div>
@@ -116,7 +116,7 @@ export default function ReportsPage() {
           onClick={loadReports}
           className="p-2 rounded-lg transition-colors hover:opacity-80"
           style={{ color: "var(--text-secondary)" }}
-          title="刷新报告"
+          title="Refresh reports"
         >
           <RefreshCw className="w-5 h-5" />
         </button>
@@ -141,7 +141,7 @@ export default function ReportsPage() {
               className="text-sm font-semibold uppercase tracking-wide"
               style={{ color: "var(--text-secondary)" }}
             >
-              {isLoading ? "加载中..." : `${reports.length} Reports`}
+              {isLoading ? "Loading..." : `${reports.length} Reports`}
             </h2>
           </div>
 

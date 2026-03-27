@@ -96,7 +96,7 @@ export function MarkdownEditor({
           }}
         >
           <Save className="w-4 h-4" />
-          {isSaving ? "保存中..." : "保存"}
+          {isSaving ? "Saving..." : "Save"}
         </button>
       </div>
 

@@ -60,7 +60,7 @@ export function GlobalSearch({ fullPage = false }: GlobalSearchProps) {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="搜索活动、任务和文档..."
+          placeholder="Search activities, jobs, and documents..."
           className="w-full pl-12 pr-10 py-3 rounded-xl transition-colors focus:outline-none"
           style={{ 
             backgroundColor: "var(--card)", 
@@ -98,7 +98,7 @@ export function GlobalSearch({ fullPage = false }: GlobalSearchProps) {
           {!isSearching && results.length === 0 && query.length >= 2 && (
             <div className="p-8 text-center" style={{ color: "var(--text-secondary)" }}>
               <Search className="w-10 h-10 mx-auto mb-3 opacity-50" />
-              <p>未找到相关结果： &quot;{query}&quot;</p>
+              <p>No results found for: &quot;{query}&quot;</p>
             </div>
           )}
 

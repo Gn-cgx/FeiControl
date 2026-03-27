@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import {
   AlertCircle,
   ArrowDownWideNarrow,
-  Briefcase,
   Bug,
   CalendarDays,
   Clock,
@@ -19,9 +18,9 @@ type ViewMode = "list" | "timeline";
 type SortMode = "updated-desc" | "next-run-asc" | "last-run-desc";
 
 const SORT_LABELS: Record<SortMode, string> = {
-  "updated-desc": "最新更新在上",
-  "next-run-asc": "下次运行最早在上",
-  "last-run-desc": "最近运行在上",
+  "updated-desc": "Latest updated first",
+  "next-run-asc": "Next run soonest first",
+  "last-run-desc": "Last run most recent first",
 };
 
 function getSortableNumber(value?: number | null): number | null {
@@ -137,7 +136,7 @@ export default function CronJobsPage() {
       const res = await fetch("/api/cron");
       if (!res.ok) {
         const errData = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(errData.error || "获取定时任务失败");
+        throw new Error(errData.error || "Failed to fetch scheduled tasks");
       }
       const data = (await res.json()) as CronJob[];
       setJobs(Array.isArray(data) ? data : []);
@@ -237,7 +236,7 @@ export default function CronJobsPage() {
             body: raw,
             error: parseErr,
           });
-          throw new Error("保存失败:服务返回了无效响应");
+          throw new Error("Save failed: server returned an invalid response");
         }
       }
 
@@ -265,7 +264,6 @@ export default function CronJobsPage() {
   };
 
   const activeJobs = jobs.filter((job) => job.enabled).length;
-  const recruitingJobs = jobs.filter((job) => job.isRecruitingTask).length;
   const issueJobs = jobs.filter((job) => job.hasIssue).length;
   const sortedJobs = useMemo(() => sortJobs(jobs, sortMode), [jobs, sortMode]);
 
@@ -281,10 +279,10 @@ export default function CronJobsPage() {
                 fontFamily: "var(--font-heading)",
               }}
             >
-              定时任务看板
+              Scheduled Tasks
             </h1>
             <p className="text-sm md:text-base" style={{ color: "var(--text-secondary)" }}>
-              直接看任务本身、下次时间、最近结果和异常,不再把信息挤成一团。
+              View tasks, next run times, recent results, and issues at a glance.
             </p>
           </div>
 
@@ -315,7 +313,7 @@ export default function CronJobsPage() {
                 }}
               >
                 <List className="w-3.5 h-3.5" />
-                列表
+                List
               </button>
               <button
                 onClick={() => setViewMode("timeline")}
@@ -334,7 +332,7 @@ export default function CronJobsPage() {
                 }}
               >
                 <CalendarDays className="w-3.5 h-3.5" />
-                时间线
+                Timeline
               </button>
             </div>
 
@@ -354,7 +352,7 @@ export default function CronJobsPage() {
                 }}
               >
                 <ArrowDownWideNarrow className="w-4 h-4" />
-                排序
+                Sort
                 <select
                   value={sortMode}
                   onChange={(event) => setSortMode(event.target.value as SortMode)}
@@ -396,7 +394,7 @@ export default function CronJobsPage() {
               }}
             >
               <RefreshCw className="w-4 h-4" />
-              刷新
+              Refresh
             </button>
           </div>
         </div>
@@ -418,16 +416,15 @@ export default function CronJobsPage() {
               border: "1px solid var(--border)",
             }}
           >
-            默认按「{SORT_LABELS[sortMode]}」
+            Sorted by "{SORT_LABELS[sortMode]}"
           </span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-8">
-        <StatCard icon={<Clock className="w-6 h-6" />} value={jobs.length} label="总任务数" tone="info" />
-        <StatCard icon={<RefreshCw className="w-6 h-6" />} value={activeJobs} label="启用中" tone="success" />
-        <StatCard icon={<Briefcase className="w-6 h-6" />} value={recruitingJobs} label="Recruiting / 求职相关" tone="accent" />
-        <StatCard icon={<Bug className="w-6 h-6" />} value={issueJobs} label="最近有异常" tone="error" />
+        <StatCard icon={<Clock className="w-6 h-6" />} value={jobs.length} label="Total Tasks" tone="info" />
+        <StatCard icon={<RefreshCw className="w-6 h-6" />} value={activeJobs} label="Enabled" tone="success" />
+        <StatCard icon={<Bug className="w-6 h-6" />} value={issueJobs} label="Recent Issues" tone="error" />
       </div>
 
       {issueJobs > 0 && (
@@ -446,7 +443,7 @@ export default function CronJobsPage() {
         >
           <Bug className="w-4 h-4" style={{ color: "var(--error)" }} />
           <span>
-            目前有 <strong>{issueJobs}</strong> 个任务最近运行异常。列表里会直接显示红色 Bug 提示。
+            Currently <strong>{issueJobs}</strong> tasks have recent failures. Red bug indicators are shown in the list.
           </span>
         </div>
       )}
@@ -470,7 +467,7 @@ export default function CronJobsPage() {
             onClick={() => setError(null)}
             style={{ marginLeft: "auto", color: "var(--error)", background: "none", border: "none", cursor: "pointer" }}
           >
-            关闭
+            Close
           </button>
         </div>
       )}
@@ -492,9 +489,9 @@ export default function CronJobsPage() {
         <div style={{ textAlign: "center", padding: "4rem 0" }}>
           <Clock className="w-8 h-8 mx-auto mb-4" style={{ color: "var(--text-muted)" }} />
           <h3 style={{ fontSize: "1.125rem", fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.5rem" }}>
-            暂无定时任务
+            No Scheduled Tasks
           </h3>
-          <p style={{ color: "var(--text-secondary)" }}>通过 OpenClaw CLI 创建定时任务后,这里会自动出现。</p>
+          <p style={{ color: "var(--text-secondary)" }}>Tasks will appear here once created via the OpenClaw CLI.</p>
         </div>
       ) : viewMode === "timeline" ? (
         <div
@@ -524,7 +521,7 @@ export default function CronJobsPage() {
                 fontFamily: "var(--font-heading)",
               }}
             >
-              未来 7 天时间线
+              Next 7 Days Timeline
             </h2>
             <span
               style={{
@@ -536,7 +533,7 @@ export default function CronJobsPage() {
                 borderRadius: "0.35rem",
               }}
             >
-              所有时间按本地时区显示
+              All times shown in local timezone
             </span>
           </div>
           <CronWeeklyTimeline jobs={jobs} />
@@ -569,7 +566,7 @@ export default function CronJobsPage() {
                 >
                   <div style={{ textAlign: "center", padding: "1rem" }}>
                     <p style={{ color: "var(--text-primary)", marginBottom: "1rem" }}>
-                      删除 "{job.name}" 吗?
+                      Delete "{job.name}"?
                     </p>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem" }}>
                       <button
@@ -583,7 +580,7 @@ export default function CronJobsPage() {
                           cursor: "pointer",
                         }}
                       >
-                        取消
+                        Cancel
                       </button>
                       <button
                         onClick={() => void handleDelete(job.id)}
@@ -597,7 +594,7 @@ export default function CronJobsPage() {
                           fontWeight: 700,
                         }}
                       >
-                        确认删除
+                        Confirm Delete
                       </button>
                     </div>
                   </div>
@@ -643,9 +640,9 @@ export default function CronJobsPage() {
           />
           {runToast.status === "success"
             ? runToast.skipped
-              ? `✓ "${runToast.name}" 触发成功，今天的定时执行已跳过`
-              : `✓ "${runToast.name}" 已触发`
-            : `✗ "${runToast.name}" 触发失败`}
+              ? `✓ "${runToast.name}" triggered successfully, today's scheduled run has been skipped`
+              : `✓ "${runToast.name}" triggered`
+            : `✗ "${runToast.name}" trigger failed`}
         </div>
       )}
 

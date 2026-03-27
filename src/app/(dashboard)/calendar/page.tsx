@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { RefreshCw, CheckSquare, Square, ChevronLeft, ChevronRight } from "lucide-react";
-import StudySection from "@/components/StudySection";
 
 interface CalendarEvent {
   key: string;
@@ -23,11 +22,13 @@ interface TasksData {
   tasks: Task[];
   pending: number;
   completed: number;
+  configured?: boolean;
+  message?: string;
 }
 
 type EventCompletionState = Record<string, boolean>;
 
-const DAY_LABELS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const EVENT_COMPLETION_STORAGE_KEY = "mission-control-calendar-event-completions";
 
 function getPSTNow() {
@@ -132,6 +133,8 @@ function normalizeTasksData(payload: unknown): TasksData {
       typeof record.completed === "number"
         ? record.completed
         : tasks.filter((task) => task.completed).length,
+    configured: typeof record.configured === "boolean" ? record.configured : undefined,
+    message: typeof record.message === "string" ? record.message : undefined,
   };
 }
 
@@ -250,7 +253,7 @@ export default function CalendarPage() {
       const payload = await response.json().catch((): unknown => null);
 
       if (!response.ok) {
-        throw new Error(getErrorMessage(payload, "无法迁移旧的日程完成状态"));
+        throw new Error(getErrorMessage(payload, "Unable to migrate legacy event completion state"));
       }
 
       const mergedState = normalizeEventCompletionState(
@@ -265,26 +268,9 @@ export default function CalendarPage() {
     } catch (error) {
       console.error("Failed to migrate legacy event completion state:", error);
       setEventCompletionError(
-        error instanceof Error ? error.message : "无法迁移旧的日程完成状态"
+        error instanceof Error ? error.message : "Unable to migrate legacy event completion state"
       );
       return serverState;
-    }
-  }, []);
-
-  // Fetch only tasks (used by auto-polling)
-  const fetchTasks = useCallback(async () => {
-    setTasksError("");
-    try {
-      const res = await fetch("/api/tasks");
-      const payload = await res.json().catch((): unknown => null);
-      if (res.ok) {
-        setTasks(normalizeTasksData(payload));
-      } else {
-        setTasksError(getErrorMessage(payload, "无法获取 Google Tasks"));
-      }
-    } catch (error) {
-      console.error("Failed to poll tasks:", error);
-      setTasksError("自动刷新 Google Tasks 失败");
     }
   }, []);
 
@@ -315,21 +301,21 @@ export default function CalendarPage() {
       } else {
         setEvents([]);
         setTodayStr("");
-        setCalendarError(getErrorMessage(calendarPayload, "无法获取日程"));
+        setCalendarError(getErrorMessage(calendarPayload, "Unable to fetch calendar events"));
       }
 
       if (taskRes.ok) {
         setTasks(normalizeTasksData(taskPayload));
       } else {
-        setTasksError(getErrorMessage(taskPayload, "无法获取 Google Tasks"));
+        setTasksError(getErrorMessage(taskPayload, "Unable to fetch Google Tasks"));
         setTasks((current) => current ?? { tasks: [], pending: 0, completed: 0 });
       }
     } catch (error) {
       console.error("Failed to fetch calendar page data:", error);
       setEvents([]);
       setTodayStr("");
-      setCalendarError("加载日程失败");
-      setTasksError("加载 Google Tasks 失败");
+      setCalendarError("Failed to load calendar events");
+      setTasksError("Failed to load Google Tasks");
       setTasks((current) => current ?? { tasks: [], pending: 0, completed: 0 });
     } finally {
       setLoading(false);
@@ -337,6 +323,8 @@ export default function CalendarPage() {
   }, [maybeMigrateLegacyEventCompletions]);
 
   const toggleTask = useCallback(async (task: Task, nextCompleted: boolean) => {
+    if (tasks?.configured === false) return;
+
     setTasksError("");
     setTogglingTaskIds((current) => ({ ...current, [task.id]: true }));
 
@@ -351,13 +339,13 @@ export default function CalendarPage() {
       const payload = await response.json().catch((): unknown => null);
 
       if (!response.ok) {
-        throw new Error(getErrorMessage(payload, "无法同步 Google Tasks"));
+        throw new Error(getErrorMessage(payload, "Unable to sync Google Tasks"));
       }
 
       setTasks(normalizeTasksData(payload));
     } catch (error) {
       console.error("Failed to toggle Google Task:", error);
-      setTasksError(error instanceof Error ? error.message : "无法同步 Google Tasks");
+      setTasksError(error instanceof Error ? error.message : "Unable to sync Google Tasks");
     } finally {
       setTogglingTaskIds((current) => {
         const nextState = { ...current };
@@ -365,7 +353,7 @@ export default function CalendarPage() {
         return nextState;
       });
     }
-  }, []);
+  }, [tasks?.configured]);
 
   const toggleEventCompletion = useCallback(async (event: CalendarEvent) => {
     const eventKey = event.key;
@@ -396,7 +384,7 @@ export default function CalendarPage() {
       const payload = await response.json().catch((): unknown => null);
 
       if (!response.ok) {
-        throw new Error(getErrorMessage(payload, "无法保存日程完成状态"));
+        throw new Error(getErrorMessage(payload, "Unable to save event completion state"));
       }
 
       const nextState = normalizeEventCompletionState(
@@ -419,7 +407,7 @@ export default function CalendarPage() {
         return nextState;
       });
       setEventCompletionError(
-        error instanceof Error ? error.message : "无法保存日程完成状态"
+        error instanceof Error ? error.message : "Unable to save event completion state"
       );
     } finally {
       setTogglingEventKeys((current) => {
@@ -433,45 +421,6 @@ export default function CalendarPage() {
   useEffect(() => {
     void fetchData(weekOffset);
   }, [weekOffset, fetchData]);
-
-  // Auto-poll tasks every 30s; pause when tab is hidden, refresh immediately on return
-  useEffect(() => {
-    const POLL_INTERVAL = 30_000;
-    let timerId: ReturnType<typeof setInterval> | null = null;
-
-    const startPolling = () => {
-      stopPolling();
-      timerId = setInterval(() => {
-        void fetchTasks();
-      }, POLL_INTERVAL);
-    };
-
-    const stopPolling = () => {
-      if (timerId !== null) {
-        clearInterval(timerId);
-        timerId = null;
-      }
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        stopPolling();
-      } else {
-        // Tab became visible again — refresh immediately then resume polling
-        void fetchTasks();
-        startPolling();
-      }
-    };
-
-    // Start polling right away (first fetch already done by fetchData)
-    startPolling();
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      stopPolling();
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [fetchTasks]);
 
   const eventsByDate = useMemo(() => {
     const grouped: Record<string, CalendarEvent[]> = {};
@@ -506,6 +455,7 @@ export default function CalendarPage() {
   const renderTaskRow = (task: Task, nextCompleted: boolean) => {
     const isCompleted = task.completed;
     const isToggling = Boolean(togglingTaskIds[task.id]);
+    const isNotConfigured = tasks?.configured === false;
 
     return (
       <button
@@ -514,9 +464,9 @@ export default function CalendarPage() {
         onClick={() => {
           void toggleTask(task, nextCompleted);
         }}
-        disabled={isToggling}
-        title={isCompleted ? "点击恢复为未完成" : "点击标记为已完成"}
-        aria-label={isCompleted ? `将 ${task.title} 标记为未完成` : `将 ${task.title} 标记为已完成`}
+        disabled={isToggling || isNotConfigured}
+        title={isCompleted ? "Click to mark as incomplete" : "Click to mark as completed"}
+        aria-label={isCompleted ? `Mark ${task.title} as incomplete` : `Mark ${task.title} as completed`}
         className="flex items-center gap-3 rounded-lg text-left transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20 hover:brightness-110 disabled:cursor-not-allowed"
         style={{
           backgroundColor: "var(--card-elevated)",
@@ -550,7 +500,7 @@ export default function CalendarPage() {
             className="text-2xl md:text-3xl font-bold"
             style={{ fontFamily: "var(--font-heading)", color: "var(--text-primary)", letterSpacing: "-1px" }}
           >
-            📅 日程
+            📅 Calendar
           </h1>
           <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
             Google Calendar · Google Tasks
@@ -573,7 +523,7 @@ export default function CalendarPage() {
                 color: "var(--text-primary)",
               }}
             >
-              本周
+              This Week
             </button>
             <button
               onClick={() => setWeekOffset((offset) => offset + 1)}
@@ -685,8 +635,8 @@ export default function CalendarPage() {
                         <div className="flex items-start gap-2">
                           <button
                             type="button"
-                            title={isEventCompleted ? "点击恢复为未完成" : "点击标记为已完成"}
-                            aria-label={isEventCompleted ? `将 ${event.title} 标记为未完成` : `将 ${event.title} 标记为已完成`}
+                            title={isEventCompleted ? "Click to mark as incomplete" : "Click to mark as completed"}
+                            aria-label={isEventCompleted ? `Mark ${event.title} as incomplete` : `Mark ${event.title} as completed`}
                             className="mt-0.5 rounded-md transition-all hover:opacity-80 pointer-events-none"
                             style={{
                               background: "none",
@@ -738,16 +688,11 @@ export default function CalendarPage() {
         })}
       </div>
 
-      {/* ===== 学习 + Google Tasks 并排 ===== */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 学习 Section (左) */}
-        <StudySection />
-
-        {/* Google Tasks (右) */}
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)" }}
-        >
+      {/* ===== Google Tasks ===== */}
+      <div
+        className="rounded-xl overflow-hidden"
+        style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)" }}
+      >
         <div
           className="flex items-center justify-between px-5 py-4"
           style={{ borderBottom: "1px solid var(--border)" }}
@@ -761,9 +706,9 @@ export default function CalendarPage() {
               ✅ Google Tasks
             </h2>
           </div>
-          {tasks && (
+          {tasks && tasks.configured !== false && (
             <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-              待完成 {tasks.pending} / 共 {tasks.tasks.length}
+              Pending {tasks.pending} / Total {tasks.tasks.length}
             </span>
           )}
         </div>
@@ -775,19 +720,23 @@ export default function CalendarPage() {
           )}
 
           {loading ? (
-            <p style={{ color: "var(--text-muted)" }}>加载中...</p>
+            <p style={{ color: "var(--text-muted)" }}>Loading...</p>
+          ) : tasks && tasks.configured === false ? (
+            <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
+              Google Tasks integration available. Configure <code style={{ fontSize: "13px", padding: "1px 4px", borderRadius: "4px", backgroundColor: "var(--surface-elevated)" }}>GOOGLE_TASKS_SCRIPT</code> in <code style={{ fontSize: "13px", padding: "1px 4px", borderRadius: "4px", backgroundColor: "var(--surface-elevated)" }}>.env.local</code> to connect.
+            </p>
           ) : tasks && tasks.tasks.length > 0 ? (
             <div className="space-y-3">
               {pendingTasks.length > 0 ? (
                 <div className="space-y-2">{pendingTasks.map((task) => renderTaskRow(task, true))}</div>
               ) : completedTasks.length > 0 ? (
-                <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>🎉 所有任务已完成！</p>
+                <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>🎉 All tasks completed!</p>
               ) : null}
 
               {completedTasks.length > 0 && (
                 <details className="mt-3" open={pendingTasks.length === 0}>
                   <summary className="text-xs cursor-pointer" style={{ color: "var(--text-muted)" }}>
-                    已完成（{completedTasks.length}）
+                    Completed ({completedTasks.length})
                   </summary>
                   <div className="space-y-2 mt-2">
                     {completedTasks.map((task) => renderTaskRow(task, false))}
@@ -796,15 +745,14 @@ export default function CalendarPage() {
               )}
             </div>
           ) : tasks ? (
-            <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>暂无 Google Tasks</p>
+            <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>No Google Tasks</p>
           ) : (
             <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
-              {tasksError || "暂无任务数据"}
+              {tasksError || "No task data available"}
             </p>
           )}
         </div>
       </div>
-      </div>{/* end grid */}
     </div>
   );
 }

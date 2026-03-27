@@ -60,7 +60,7 @@ export default function CostsPage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: "var(--accent)" }}></div>
-          <p style={{ color: "var(--text-secondary)" }}>加载成本数据中...</p>
+          <p style={{ color: "var(--text-secondary)" }}>Loading cost data...</p>
         </div>
       </div>
     );
@@ -71,7 +71,7 @@ export default function CostsPage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <DollarSign className="w-16 h-16 mx-auto mb-4" style={{ color: "var(--text-muted)" }} />
-          <p style={{ color: "var(--text-secondary)" }}>无法加载成本数据</p>
+          <p style={{ color: "var(--text-secondary)" }}>Unable to load cost data</p>
         </div>
       </div>
     );
@@ -94,10 +94,10 @@ export default function CostsPage() {
               color: "var(--text-primary)",
             }}
           >
-            成本分析
+            Cost Analysis
           </h1>
           <p style={{ color: "var(--text-secondary)" }}>
-            所有 Agent 的 Token 使用量与成本追踪
+            Token usage and cost tracking across all agents
           </p>
         </div>
 
@@ -127,12 +127,12 @@ export default function CostsPage() {
         </div>
       )}
 
-      {/* KPI 卡片 */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* 今日 */}
+        {/* Today */}
         <div className="p-6 rounded-xl" style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm" style={{ color: "var(--text-secondary)" }}>今日</span>
+            <span className="text-sm" style={{ color: "var(--text-secondary)" }}>Today</span>
             {todayChange !== 0 && isFinite(todayChange) && (
               <div className="flex items-center gap-1">
                 {todayChange > 0 ? (
@@ -153,14 +153,14 @@ export default function CostsPage() {
             ${(costData.today ?? 0).toFixed(2)}
           </div>
           <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
-            vs ${(costData.yesterday ?? 0).toFixed(2)} 昨日
+            vs ${(costData.yesterday ?? 0).toFixed(2)} yesterday
           </p>
         </div>
 
-        {/* 本月 */}
+        {/* This Month */}
         <div className="p-6 rounded-xl" style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm" style={{ color: "var(--text-secondary)" }}>本月</span>
+            <span className="text-sm" style={{ color: "var(--text-secondary)" }}>This Month</span>
             {monthChange !== 0 && isFinite(monthChange) && (
               <div className="flex items-center gap-1">
                 {monthChange > 0 ? (
@@ -188,7 +188,7 @@ export default function CostsPage() {
         {/* Projected */}
         <div className="p-6 rounded-xl" style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm" style={{ color: "var(--text-secondary)" }}>月末预计</span>
+            <span className="text-sm" style={{ color: "var(--text-secondary)" }}>Projected Monthly</span>
           </div>
           <div className="text-3xl font-bold" style={{ color: "var(--warning)" }}>
             ${(costData.projected ?? 0).toFixed(2)}
@@ -201,7 +201,7 @@ export default function CostsPage() {
         {/* Budget */}
         <div className="p-6 rounded-xl" style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm" style={{ color: "var(--text-secondary)" }}>预算</span>
+            <span className="text-sm" style={{ color: "var(--text-secondary)" }}>Budget</span>
             {budgetPercent > 80 && (
               <AlertTriangle className="w-4 h-4" style={{ color: "var(--error)" }} />
             )}
@@ -317,14 +317,14 @@ export default function CostsPage() {
                 }}
               />
               <Legend />
-              <Bar dataKey="input" stackId="a" fill="#60A5FA" name="输入 Token" />
-              <Bar dataKey="output" stackId="a" fill="#F59E0B" name="输出 Token" />
+              <Bar dataKey="input" stackId="a" fill="#60A5FA" name="Input Tokens" />
+              <Bar dataKey="output" stackId="a" fill="#F59E0B" name="Output Tokens" />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Model Pricing 表格 */}
+      {/* Model Pricing Table */}
       <div className="p-6 rounded-xl" style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)" }}>
         <h3 className="text-lg font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
           Model Pricing (per 1M tokens)
@@ -333,11 +333,11 @@ export default function CostsPage() {
           <table className="w-full">
             <thead>
               <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                <th className="text-left py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>模型</th>
-                <th className="text-right py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>输入</th>
-                <th className="text-right py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>输出</th>
-                <th className="text-right py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>缓存读取</th>
-                <th className="text-right py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>缓存写入</th>
+                <th className="text-left py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>Model</th>
+                <th className="text-right py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>Input</th>
+                <th className="text-right py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>Output</th>
+                <th className="text-right py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>Cache Read</th>
+                <th className="text-right py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>Cache Write</th>
               </tr>
             </thead>
             <tbody>
@@ -367,8 +367,8 @@ export default function CostsPage() {
             <thead>
               <tr style={{ borderBottom: "1px solid var(--border)" }}>
                 <th className="text-left py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>Agent</th>
-                <th className="text-right py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>Token 数</th>
-                <th className="text-right py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>成本</th>
+                <th className="text-right py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>Tokens</th>
+                <th className="text-right py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>Cost</th>
                 <th className="text-right py-3 px-4 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>% of Total</th>
               </tr>
             </thead>

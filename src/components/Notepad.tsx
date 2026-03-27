@@ -77,7 +77,7 @@ export function Notepad() {
         )}
         <button
           onClick={clear}
-          title="清除"
+          title="Clear"
           style={{ padding: "0.2rem", borderRadius: "0.25rem", background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }}
         >
           <Trash2 className="w-3 h-3" />

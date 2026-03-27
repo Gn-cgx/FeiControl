@@ -33,12 +33,12 @@ const TIMEZONES = Array.from(new Set([
 type FrequencyMode = "every-minutes" | "hourly" | "daily" | "weekly" | "monthly" | "custom";
 
 const FREQUENCY_MODES: Array<{ id: FrequencyMode; label: string; emoji: string }> = [
-  { id: "every-minutes", label: "每 N 分钟", emoji: "⏱️" },
-  { id: "hourly", label: "每小时", emoji: "🕐" },
-  { id: "daily", label: "每天", emoji: "☀️" },
-  { id: "weekly", label: "每周", emoji: "📅" },
-  { id: "monthly", label: "每月", emoji: "🗓️" },
-  { id: "custom", label: "自定义 cron", emoji: "⚙️" },
+  { id: "every-minutes", label: "Every N Minutes", emoji: "⏱️" },
+  { id: "hourly", label: "Hourly", emoji: "🕐" },
+  { id: "daily", label: "Daily", emoji: "☀️" },
+  { id: "weekly", label: "Weekly", emoji: "📅" },
+  { id: "monthly", label: "Monthly", emoji: "🗓️" },
+  { id: "custom", label: "Custom Cron", emoji: "⚙️" },
 ];
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -47,11 +47,11 @@ const MINUTES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
 // Template presets
 const TEMPLATES = [
-  { label: "每日凌晨3点备份", cron: "0 3 * * *" },
-  { label: "工作日早上9点报告", cron: "0 9 * * 1-5" },
-  { label: "每小时健康检查", cron: "0 * * * *" },
-  { label: "每15分钟", cron: "*/15 * * * *" },
-  { label: "每周清理（周日零点）", cron: "0 0 * * 0" },
+  { label: "Daily backup at 3 AM", cron: "0 3 * * *" },
+  { label: "Weekday report at 9 AM", cron: "0 9 * * 1-5" },
+  { label: "Hourly health check", cron: "0 * * * *" },
+  { label: "Every 15 minutes", cron: "*/15 * * * *" },
+  { label: "Weekly cleanup (Sunday midnight)", cron: "0 0 * * 0" },
   { label: "First of month report", cron: "0 8 1 * *" },
   { label: "Every 5 minutes", cron: "*/5 * * * *" },
   { label: "Twice daily (9 AM & 9 PM)", cron: "0 9,21 * * *" },

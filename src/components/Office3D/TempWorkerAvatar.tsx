@@ -15,8 +15,8 @@ interface TempWorkerAvatarProps {
 }
 
 /**
- * TempWorkerAvatar — 临时工小人
- * 基于 VoxelAvatar 但有区别：戴安全帽、穿工装
+ * TempWorkerAvatar — Temp Worker Avatar
+ * Based on VoxelAvatar but different: wears hard hat and work vest
  */
 
 function WorkerLeg({ x, isSitting, pantsColor }: { x: number; isSitting: boolean; pantsColor: string }) {
@@ -123,23 +123,23 @@ export default function TempWorkerAvatar({
             </Text>
           )}
 
-          {/* === 安全帽 (Hard Hat) === */}
+          {/* === Hard Hat === */}
           <mesh position={[0, 0.14, 0]}>
             <sphereGeometry args={[0.13, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
             <meshStandardMaterial color="#FFC107" roughness={0.4} metalness={0.1} />
           </mesh>
-          {/* 帽檐 */}
+          {/* Hat brim */}
           <mesh position={[0, 0.1, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <ringGeometry args={[0.1, 0.16, 8]} />
             <meshStandardMaterial color="#FFC107" roughness={0.4} />
           </mesh>
         </group>
 
-        {/* BODY — 工装背心 */}
+        {/* BODY - Work Vest */}
         <Box args={[0.2, 0.25, 0.12]} position={[0, 0.125, 0]} castShadow>
           <meshStandardMaterial color={vestColor} />
         </Box>
-        {/* 反光条纹 */}
+        {/* Reflective stripes */}
         <Box args={[0.21, 0.02, 0.13]} position={[0, 0.17, 0]} castShadow>
           <meshStandardMaterial color="#E0E0E0" emissive="#E0E0E0" emissiveIntensity={0.3} />
         </Box>

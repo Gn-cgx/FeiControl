@@ -40,7 +40,7 @@ export function QuickActions({ onActionComplete }: QuickActionsProps) {
 
   const handleRestartGateway = async () => {
     // Placeholder - would call openclaw gateway restart
-    showNotification("success", "网关重启命令已发送（占位）");
+    showNotification("success", "Gateway restart command sent (placeholder)");
   };
 
   const handleClearActivityLog = async () => {
@@ -52,12 +52,12 @@ export function QuickActions({ onActionComplete }: QuickActionsProps) {
         body: JSON.stringify({ action: "clear_activity_log" }),
       });
 
-      if (!res.ok) throw new Error("清除日志失败");
+      if (!res.ok) throw new Error("Failed to clear logs");
 
-      showNotification("success", "活动日志已清除");
+      showNotification("success", "Activity logs cleared");
       onActionComplete?.();
     } catch {
-      showNotification("error", "清除活动日志失败");
+      showNotification("error", "Failed to clear activity logs");
     } finally {
       setLoadingAction(null);
     }
@@ -65,13 +65,13 @@ export function QuickActions({ onActionComplete }: QuickActionsProps) {
 
   const handleViewLogs = async () => {
     // Placeholder - would open gateway logs
-    showNotification("success", "正在打开网关日志...（占位）");
+    showNotification("success", "Opening gateway logs... (placeholder)");
   };
 
   const actions: ActionButton[] = [
     {
       id: "restart",
-      label: "重启网关",
+      label: "Restart Gateway",
       icon: RefreshCw,
       color: "blue",
       action: handleRestartGateway,
@@ -79,14 +79,14 @@ export function QuickActions({ onActionComplete }: QuickActionsProps) {
     },
     {
       id: "clear_log",
-      label: "清除活动日志",
+      label: "Clear Activity Logs",
       icon: Trash2,
       color: "yellow",
       action: handleClearActivityLog,
     },
     {
       id: "view_logs",
-      label: "查看网关日志",
+      label: "View Gateway Logs",
       icon: FileText,
       color: "emerald",
       action: handleViewLogs,
@@ -94,7 +94,7 @@ export function QuickActions({ onActionComplete }: QuickActionsProps) {
     },
     {
       id: "change_password",
-      label: "修改密码",
+      label: "Change Password",
       icon: Key,
       color: "red",
       action: () => setShowPasswordModal(true),
@@ -169,7 +169,7 @@ export function QuickActions({ onActionComplete }: QuickActionsProps) {
         isOpen={showPasswordModal}
         onClose={() => setShowPasswordModal(false)}
         onSuccess={() => {
-          showNotification("success", "密码修改成功");
+          showNotification("success", "Password changed successfully");
           setShowPasswordModal(false);
         }}
       />

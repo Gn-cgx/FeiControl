@@ -103,9 +103,9 @@ function parseKhalOutput(output: string): CalendarEvent[] {
         if (!seen.has(key)) {
           seen.add(key);
           events.push({
-            key: buildEventKey({ date: currentDate, time: "全天", title, allDay: true }),
+            key: buildEventKey({ date: currentDate, time: "All Day", title, allDay: true }),
             date: currentDate,
-            time: "全天",
+            time: "All Day",
             title,
             allDay: true,
           });
@@ -187,7 +187,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ...result, completions });
   } catch (error) {
     console.error("Error fetching calendar:", error);
-    return NextResponse.json({ error: "无法获取日程数据", events: [], today: "" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch calendar data", events: [], today: "" }, { status: 500 });
   }
 }
 
@@ -210,7 +210,7 @@ export async function PATCH(request: NextRequest) {
     const completed = typeof body?.completed === "boolean" ? body.completed : null;
 
     if (!key || completed === null) {
-      return NextResponse.json({ error: "请求参数无效" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid request parameters" }, { status: 400 });
     }
 
     if (completed) {
@@ -223,6 +223,6 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ completions });
   } catch (error) {
     console.error("Error updating calendar completion:", error);
-    return NextResponse.json({ error: "无法更新日程完成状态" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update calendar completion status" }, { status: 500 });
   }
 }

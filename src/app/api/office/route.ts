@@ -94,17 +94,17 @@ function getAgentStatusFromSessions(agentId: string): AgentState {
     prevSizes[cacheKey] = { size: latestSize, ts: Date.now() };
 
     if (hasLock || isGrowing) {
-      return { isActive: true, currentTask: "执行中...", lastSeen: latestMtime, status: "working" };
+      return { isActive: true, currentTask: "Working...", lastSeen: latestMtime, status: "working" };
     }
     if (secsAgo < 120) {
       const ended = isSessionEnded(latestPath);
       if (!ended) {
-        return { isActive: true, currentTask: "执行中...", lastSeen: latestMtime, status: "working" };
+        return { isActive: true, currentTask: "Working...", lastSeen: latestMtime, status: "working" };
       }
-      return { isActive: false, currentTask: "待命中", lastSeen: latestMtime, status: "idle" };
+      return { isActive: false, currentTask: "Standing by", lastSeen: latestMtime, status: "idle" };
     }
     if (secsAgo < 1800) {
-      return { isActive: false, currentTask: "待命中", lastSeen: latestMtime, status: "idle" };
+      return { isActive: false, currentTask: "Standing by", lastSeen: latestMtime, status: "idle" };
     }
     return { isActive: false, currentTask: "zzZ...", lastSeen: latestMtime, status: "sleeping" };
   } catch {

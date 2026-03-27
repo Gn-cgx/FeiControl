@@ -218,7 +218,7 @@ function EditorModal({ workspace, filePath, fileName, onClose }: EditorModalProp
             }}
           >
             <Save className="w-4 h-4" />
-            {saved ? "已保存！" : saving ? "保存中..." : "保存"}
+            {saved ? "Saved!" : saving ? "Saving..." : "Save"}
           </button>
 
           <button
@@ -372,7 +372,7 @@ export function FileBrowser({ workspace, path, onNavigate, viewMode = "list" }: 
         loadItems();
       }
     } catch {
-      alert("删除失败");
+      alert("Delete failed");
     } finally {
       setConfirmDelete(null);
     }
@@ -503,7 +503,7 @@ export function FileBrowser({ workspace, path, onNavigate, viewMode = "list" }: 
 
         <button
           onClick={loadItems}
-          title="刷新"
+          title="Refresh"
           style={{
             display: "flex", alignItems: "center",
             padding: "0.375rem", borderRadius: "0.5rem",
@@ -565,7 +565,7 @@ export function FileBrowser({ workspace, path, onNavigate, viewMode = "list" }: 
         {items.length === 0 && !dragging && (
           <div className="flex flex-col items-center justify-center py-12" style={{ color: "var(--text-secondary)" }}>
             <FolderOpen className="w-16 h-16 mb-4 opacity-50" />
-            <p>此文件夹为空</p>
+            <p>This folder is empty</p>
             <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.5rem" }}>Drag & drop files to upload</p>
           </div>
         )}
@@ -573,7 +573,7 @@ export function FileBrowser({ workspace, path, onNavigate, viewMode = "list" }: 
         {dragging && (
           <div className="flex flex-col items-center justify-center py-12" style={{ color: "var(--accent)" }}>
             <Upload className="w-16 h-16 mb-4" />
-            <p>拖拽文件到此处上传</p>
+            <p>Drag and drop files here to upload</p>
           </div>
         )}
 
@@ -648,7 +648,7 @@ export function FileBrowser({ workspace, path, onNavigate, viewMode = "list" }: 
                     )}
                     <button
                       onClick={(e) => { e.stopPropagation(); setConfirmDelete(item); }}
-                      title="删除"
+                      title="Delete"
                       style={{ padding: "0.25rem", borderRadius: "0.25rem", background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }}
                     >
                       <Trash2 className="w-3.5 h-3.5" />

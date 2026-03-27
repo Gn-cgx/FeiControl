@@ -75,10 +75,10 @@ export default function SettingsPage() {
             style={{ color: "var(--text-primary)", fontFamily: "var(--font-heading)" }}
           >
             <Settings className="w-6 h-6 md:w-8 md:h-8" style={{ color: "var(--accent)" }} />
-            设置
+            Settings
           </h1>
           <p className="text-sm md:text-base" style={{ color: "var(--text-secondary)" }}>
-            系统状态、集成与配置
+            System status, integrations, and configuration
           </p>
         </div>
 
@@ -93,14 +93,14 @@ export default function SettingsPage() {
           }}
         >
           <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-          刷新
+          Refresh
         </button>
       </div>
 
       {/* Last Refresh Time */}
       {lastRefresh && (
         <div className="text-sm mb-6" style={{ color: "var(--text-muted)" }}>
-          最后更新：{lastRefresh.toLocaleTimeString()}
+          Last updated: {lastRefresh.toLocaleTimeString()}
         </div>
       )}
 
@@ -132,7 +132,7 @@ export default function SettingsPage() {
       >
         <div className="flex items-center justify-between text-sm" style={{ color: "var(--text-muted)" }}>
           <span>Mission Control v1.0.0</span>
-          <span>OpenClaw Agent 仪表盘</span>
+          <span>OpenClaw Agent Dashboard</span>
         </div>
       </div>
     </div>

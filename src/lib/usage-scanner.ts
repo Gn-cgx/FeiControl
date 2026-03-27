@@ -260,6 +260,6 @@ export async function buildCostReport(filterDays?: number) {
     totalTokens: filtered.reduce((s, e) => s + e.totalTokens, 0),
     totalMessages: filtered.length,
     liveEstimate: true,
-    note: "估算成本 — 基于 JSONL 会话文件的实际 token 用量 × 模型公开定价；不包含订阅套餐或供应商折扣。",
+    note: "Estimated cost — based on actual token usage from JSONL session files × published model pricing; does not account for subscription plans or vendor discounts.",
   };
 }

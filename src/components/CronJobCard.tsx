@@ -41,8 +41,6 @@ export interface CronJob {
   recurrenceKind?: "once" | "recurring" | "interval" | "unknown";
   recurrenceLabel?: string;
   scheduleKind?: string | null;
-  isRecruitingTask?: boolean;
-  recruitingHint?: string | null;
   lastRunStatus?: string | null;
   lastDurationMs?: number | null;
   lastError?: string | null;
@@ -125,19 +123,19 @@ function formatRelativeTime(dateString: string): string {
   const diffMs = new Date(dateString).getTime() - Date.now();
   const absMs = Math.abs(diffMs);
   const units = [
-    { size: 24 * 60 * 60 * 1000, label: "天" },
-    { size: 60 * 60 * 1000, label: "小时" },
-    { size: 60 * 1000, label: "分钟" },
+    { size: 24 * 60 * 60 * 1000, label: "d" },
+    { size: 60 * 60 * 1000, label: "h" },
+    { size: 60 * 1000, label: "m" },
   ];
 
   for (const unit of units) {
     if (absMs >= unit.size) {
       const value = Math.round(absMs / unit.size);
-      return diffMs >= 0 ? `${value}${unit.label}后` : `${value}${unit.label}前`;
+      return diffMs >= 0 ? `in ${value}${unit.label}` : `${value}${unit.label} ago`;
     }
   }
 
-  return diffMs >= 0 ? "即将执行" : "刚刚执行";
+  return diffMs >= 0 ? "any moment now" : "just now";
 }
 
 function formatDuration(durationMs?: number | null): string {
@@ -189,38 +187,38 @@ function getHealthMeta(job: CronJob): HealthMeta {
 
   if (!job.lastRun) {
     return {
-      label: "还没有运行记录",
+      label: "No run history yet",
       tone: "neutral",
-      detailLine: "第一次运行后会显示结果。",
-      timestampLabel: "尚未执行",
+      detailLine: "Results will appear after the first run.",
+      timestampLabel: "Not executed yet",
     };
   }
 
   if (job.hasIssue || job.lastRunStatus === "error") {
     return {
-      label: "最近运行异常",
+      label: "Last run failed",
       tone: "error",
       detailLine:
         consecutiveErrors > 1
-          ? `已连续失败 ${consecutiveErrors} 次`
-          : job.lastError?.trim() || "请展开查看详情。",
+          ? `Failed ${consecutiveErrors} times in a row`
+          : job.lastError?.trim() || "Expand for details.",
       timestampLabel: formatFullDate(job.lastRun),
     };
   }
 
   if (job.lastRunStatus === "ok") {
     return {
-      label: "最近运行正常",
+      label: "Last run succeeded",
       tone: "success",
-      detailLine: `耗时 ${formatDuration(job.lastDurationMs)}`,
+      detailLine: `Duration: ${formatDuration(job.lastDurationMs)}`,
       timestampLabel: formatFullDate(job.lastRun),
     };
   }
 
   return {
-    label: `最近运行：${job.lastRunStatus || "unknown"}`,
+    label: `Last run: ${job.lastRunStatus || "unknown"}`,
     tone: "neutral",
-    detailLine: `耗时 ${formatDuration(job.lastDurationMs)}`,
+    detailLine: `Duration: ${formatDuration(job.lastDurationMs)}`,
     timestampLabel: formatFullDate(job.lastRun),
   };
 }
@@ -228,7 +226,7 @@ function getHealthMeta(job: CronJob): HealthMeta {
 function getTimeMeta(job: CronJob): { label: string; value: string; hint: string } {
   if (job.nextRun) {
     return {
-      label: job.recurrenceKind === "once" ? "执行时间" : "下次运行",
+      label: job.recurrenceKind === "once" ? "Execution Time" : "Next Run",
       value: formatPrimaryDate(job.nextRun),
       hint: formatRelativeTime(job.nextRun),
     };
@@ -236,16 +234,16 @@ function getTimeMeta(job: CronJob): { label: string; value: string; hint: string
 
   if (job.recurrenceKind === "once" && job.lastRun) {
     return {
-      label: "已执行",
+      label: "Executed",
       value: formatPrimaryDate(job.lastRun),
-      hint: "这是一条一次性任务。",
+      hint: "This is a one-time job.",
     };
   }
 
   return {
-    label: "时间信息",
-    value: "暂无排期",
-    hint: "请检查调度配置。",
+    label: "Schedule Info",
+    value: "Not scheduled",
+    hint: "Please check the schedule configuration.",
   };
 }
 
@@ -357,11 +355,10 @@ export function CronJobCard({
             <MetaPill tone="neutral">
               {getAgentEmoji(job.agentId)} {getAgentDisplayName(job.agentId)}
             </MetaPill>
-            {job.isRecruitingTask && <MetaPill tone="accent">Recruiting</MetaPill>}
             <MetaPill tone={job.recurrenceKind === "once" ? "neutral" : "success"}>
-              {job.recurrenceLabel || "未分类"}
+              {job.recurrenceLabel || "Uncategorized"}
             </MetaPill>
-            {!job.enabled && <MetaPill tone="warning">已暂停</MetaPill>}
+            {!job.enabled && <MetaPill tone="warning">Paused</MetaPill>}
           </div>
         </div>
 
@@ -381,7 +378,7 @@ export function CronJobCard({
           }}
         >
           {job.enabled ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
-          {job.enabled ? "启用中" : "已暂停"}
+          {job.enabled ? "Enabled" : "Paused"}
         </button>
       </div>
 
@@ -479,9 +476,9 @@ export function CronJobCard({
         >
           <AlertTriangle className="w-4 h-4" style={{ color: "var(--error)", marginTop: "0.1rem", flexShrink: 0 }} />
           <div>
-            <div style={{ color: "var(--error)", fontSize: "0.8rem", fontWeight: 800 }}>Bug / 异常提醒</div>
+            <div style={{ color: "var(--error)", fontSize: "0.8rem", fontWeight: 800 }}>Bug / Error Alert</div>
             <div style={{ color: "var(--text-primary)", fontSize: "0.76rem", lineHeight: 1.5, marginTop: "0.2rem" }}>
-              {job.lastError?.trim() || "最近一次执行异常。"}
+              {job.lastError?.trim() || "The last execution encountered an error."}
             </div>
           </div>
         </div>
@@ -513,7 +510,7 @@ export function CronJobCard({
                 flexWrap: "wrap",
               }}
             >
-              <SectionTitle>任务 Prompt</SectionTitle>
+              <SectionTitle>Job Prompt</SectionTitle>
               {!isEditingPrompt ? (
                 <button
                   onClick={() => setIsEditingPrompt(true)}
@@ -532,7 +529,7 @@ export function CronJobCard({
                   }}
                 >
                   <Pencil className="w-4 h-4" />
-                  编辑 Prompt
+                  Edit Prompt
                 </button>
               ) : (
                 <div style={{ display: "flex", gap: "0.55rem", flexWrap: "wrap" }}>
@@ -555,7 +552,7 @@ export function CronJobCard({
                     }}
                   >
                     <Save className="w-4 h-4" />
-                    {isSavingPrompt ? "保存中..." : "保存"}
+                    {isSavingPrompt ? "Saving..." : "Save"}
                   </button>
                   <button
                     onClick={() => {
@@ -578,7 +575,7 @@ export function CronJobCard({
                     }}
                   >
                     <X className="w-4 h-4" />
-                    取消
+                    Cancel
                   </button>
                 </div>
               )}
@@ -613,7 +610,7 @@ export function CronJobCard({
                   wordBreak: "break-word",
                 }}
               >
-                {promptText || "暂无 prompt。"}
+                {promptText || "No prompt configured."}
               </div>
             )}
           </section>
@@ -648,7 +645,7 @@ export function CronJobCard({
           }}
         >
           {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          {expanded ? "收起详情" : "查看详情"}
+          {expanded ? "Collapse" : "Details"}
         </button>
 
         <div style={{ display: "flex", gap: "0.55rem", flexWrap: "wrap" }}>
@@ -668,7 +665,7 @@ export function CronJobCard({
             }}
           >
             <Play className="w-4 h-4" />
-            立即运行
+            Run Now
           </button>
 
           <button
@@ -709,7 +706,7 @@ export function CronJobCard({
             }}
           >
             <Trash2 className="w-4 h-4" />
-            删除
+            Delete
           </button>
         </div>
       </div>

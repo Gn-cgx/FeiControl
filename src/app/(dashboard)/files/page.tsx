@@ -52,10 +52,10 @@ export default function FilesPage() {
             marginBottom: "4px",
           }}
         >
-          文件浏览器
+          File Browser
         </h1>
         <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--text-secondary)" }}>
-          浏览 Agent 工作区与文件
+          Browse agent workspaces and files
         </p>
       </div>
 

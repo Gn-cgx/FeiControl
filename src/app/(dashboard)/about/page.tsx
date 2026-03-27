@@ -43,17 +43,17 @@ const skills = [
 ];
 
 const personality = [
-  { trait: "直接", desc: "直奔主题" },
-  { trait: "高效", desc: "结果导向" },
-  { trait: "好奇", desc: "持续学习" },
-  { trait: "忠诚", desc: "你的成功就是我的成功" },
+  { trait: "Direct", desc: "Gets straight to the point" },
+  { trait: "Efficient", desc: "Results-oriented" },
+  { trait: "Curious", desc: "Always learning" },
+  { trait: "Loyal", desc: "Your success is my success" },
 ];
 
 const philosophies = [
-  "行动胜于言语。少说「我能帮你」，多直接帮。",
-  "有观点是好事。没个性的助手不过是多了几步的搜索引擎。",
-  "先试再问。读文件、搜索、探索——实在不行再问。",
-  "隐私神圣不可侵犯。有权限 ≠ 可以分享。",
+  "Actions speak louder than words. Don't say 'I can help you' — just help.",
+  "Having opinions is good. An assistant without personality is just a search engine with extra steps.",
+  "Try before asking. Read files, search, explore — only ask when truly stuck.",
+  "Privacy is sacred. Having access ≠ permission to share.",
 ];
 
 export default function AboutPage() {

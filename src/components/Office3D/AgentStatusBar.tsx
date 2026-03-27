@@ -23,12 +23,12 @@ export default function AgentStatusBar({ agents, agentStates, selectedAgent, onS
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'working': return '工作中';
-      case 'thinking': return '思考中';
-      case 'error': return '错误';
-      case 'sleeping': return '休眠';
+      case 'working': return 'Working';
+      case 'thinking': return 'Thinking';
+      case 'error': return 'Error';
+      case 'sleeping': return 'Sleeping';
       case 'idle':
-      default: return '空闲';
+      default: return 'Idle';
     }
   };
 
@@ -71,7 +71,7 @@ export default function AgentStatusBar({ agents, agentStates, selectedAgent, onS
           <span className="text-blue-400 font-medium">
             {agents.find(a => a.id === selectedAgent)?.name}
           </span>
-          {agentStates[selectedAgent]?.status === 'working' ? ' 正在干活  ' : ' '}
+          {agentStates[selectedAgent]?.status === 'working' ? ' Working on it  ' : ' '}
           <span className="text-gray-500">
             {agentStates[selectedAgent]?.currentTask || ''}
           </span>

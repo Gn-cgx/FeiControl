@@ -375,13 +375,13 @@ export default function Office3D() {
           <Floor />
           <Walls />
 
-          {/* 中央展示桌 */}
+          {/* Central display table */}
           <RoundTable />
 
-          {/* === 樱花庭院（连接两栋楼） === */}
+          {/* === Cherry Blossom Garden (connecting two buildings) === */}
           <CherryBlossomGarden />
 
-          {/* === ClawTeam 外包办公室 === */}
+          {/* === ClawTeam Outsourcing Office === */}
           <ClawTeamOffice
             members={clawTeamMembers}
             taskSummary={clawTeamSummary}
@@ -393,10 +393,10 @@ export default function Office3D() {
           <FoldingScreen />
           {/* <CeilingBeams /> */}
 
-          {/* 大电视 — agent 桌子前方后墙上 */}
+          {/* Large TV - on the back wall in front of agent desks */}
           <TVScreen />
 
-          {/* 巨大苹果风格时钟 — 天花板上方 */}
+          {/* Large Apple-style clock - above the ceiling */}
           <WallClock position={[0, 16, -30]} />
 
           {/* Agent Desks */}
@@ -472,9 +472,9 @@ export default function Office3D() {
           <div className="bg-gray-900 border border-yellow-500 rounded-lg p-8 max-w-2xl w-full mx-4 shadow-2xl">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-yellow-400">
-                {interactionModal === 'memory' && '📁 文档阅览'}
-                {interactionModal === 'roadmap' && '📋 路线图与规划'}
-                {interactionModal === 'energy' && '☕ Agent 能量仪表盘'}
+                {interactionModal === 'memory' && '📁 Reports'}
+                {interactionModal === 'roadmap' && '📋 Roadmap & Planning'}
+                {interactionModal === 'energy' && '☕ Agent Energy Dashboard'}
               </h2>
               <button
                 onClick={handleCloseModal}
@@ -487,33 +487,33 @@ export default function Office3D() {
             <div className="text-gray-300 space-y-4">
               {interactionModal === 'memory' && (
                 <>
-                  <p className="text-lg">📚 浏览工作区文档、记忆与 Skills</p>
+                  <p className="text-lg">📚 Browse workspace documents, memory & skills</p>
                   <div className="bg-gray-800 p-4 rounded border border-gray-700">
-                    <p className="text-sm text-gray-400 mb-2">快捷链接：</p>
+                    <p className="text-sm text-gray-400 mb-2">Quick Links:</p>
                     <ul className="space-y-2">
-                      <li><a href="/memory" className="text-yellow-400 hover:underline">→ 打开文档阅览</a></li>
-                      <li><a href="/files" className="text-yellow-400 hover:underline">→ 文件管理器</a></li>
+                      <li><a href="/memory" className="text-yellow-400 hover:underline">→ Open Reports</a></li>
+                      <li><a href="/files" className="text-yellow-400 hover:underline">→ File Manager</a></li>
                     </ul>
                   </div>
                 </>
               )}
               {interactionModal === 'roadmap' && (
                 <>
-                  <p className="text-lg">🗺️ 项目路线图与规划面板</p>
+                  <p className="text-lg">🗺️ Project Roadmap & Planning Panel</p>
                   <div className="bg-gray-800 p-4 rounded border border-gray-700">
-                    <p className="text-sm text-gray-400 mb-2">当前阶段：</p>
+                    <p className="text-sm text-gray-400 mb-2">Current Phase:</p>
                     <ul className="space-y-2">
                       <li className="flex items-center gap-2">
                         <span className="text-green-400">✓</span>
-                        <span>阶段 0: TenacitOS 外壳</span>
+                        <span>Phase 0: TenacitOS Shell</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="text-yellow-400">●</span>
-                        <span>阶段 8: 3D 办公室 (MVP)</span>
+                        <span>Phase 8: 3D Office (MVP)</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="text-gray-500">○</span>
-                        <span>阶段 2: 文件浏览器 Pro</span>
+                        <span>Phase 2: File Browser Pro</span>
                       </li>
                     </ul>
                   </div>
@@ -521,18 +521,18 @@ export default function Office3D() {
               )}
               {interactionModal === 'energy' && (
                 <>
-                  <p className="text-lg">⚡ Agent 活跃度与能量等级</p>
+                  <p className="text-lg">⚡ Agent Activity & Energy Level</p>
                   <div className="bg-gray-800 p-4 rounded border border-gray-700 space-y-3">
                     <div>
-                      <p className="text-sm text-gray-400">今日 Token 消耗：</p>
+                      <p className="text-sm text-gray-400">Today's Token Usage:</p>
                       <p className="text-2xl font-bold text-yellow-400">47,000</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-400">活跃 Agent：</p>
+                      <p className="text-sm text-gray-400">Active Agents:</p>
                       <p className="text-2xl font-bold text-green-400">3 / 6</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-400">系统运行时间：</p>
+                      <p className="text-sm text-gray-400">System Uptime:</p>
                       <p className="text-2xl font-bold text-blue-400">12h 34m</p>
                     </div>
                   </div>
@@ -544,7 +544,7 @@ export default function Office3D() {
               onClick={handleCloseModal}
               className="mt-6 w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 rounded transition-colors"
             >
-              关闭
+              Close
             </button>
           </div>
         </div>

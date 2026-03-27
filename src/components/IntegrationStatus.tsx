@@ -27,28 +27,28 @@ const statusConfig = {
     color: "text-emerald-400",
     bg: "bg-emerald-500/10",
     border: "border-emerald-500/30",
-    label: "已连接",
+    label: "Connected",
   },
   disconnected: {
     icon: XCircle,
     color: "text-red-400",
     bg: "bg-red-500/10",
     border: "border-red-500/30",
-    label: "未连接",
+    label: "Disconnected",
   },
   configured: {
     icon: CheckCircle,
     color: "text-blue-400",
     bg: "bg-blue-500/10",
     border: "border-blue-500/30",
-    label: "已配置",
+    label: "Configured",
   },
   not_configured: {
     icon: AlertCircle,
     color: "text-yellow-400",
     bg: "bg-yellow-500/10",
     border: "border-yellow-500/30",
-    label: "未配置",
+    label: "Not Configured",
   },
 };
 

@@ -89,7 +89,7 @@ function parseSummarySections(content: string) {
       currentSection = { title: line.replace(/^##\s*/, "").trim(), items: [] };
       continue;
     }
-    if (line.startsWith("---") || line.startsWith("_由")) continue;
+    if (line.startsWith("---") || line.startsWith("_by")) continue;
     if (line.startsWith("<!--")) continue;
     if (currentSection && line.startsWith("- ") && line.trim().length > 2) {
       currentSection.items.push(line.replace(/^-\s*/, "").trim());
@@ -140,15 +140,17 @@ function getEvolutionStatus() {
     let inRecommendations = false;
 
     for (const line of lines) {
-      if (line.includes("待改进项")) { inImprovements = true; inRecommendations = false; continue; }
-      if (line.includes("推荐资产")) { inRecommendations = true; inImprovements = false; continue; }
-      if (line.includes("已安装记录") || line.includes("上次更新")) { inImprovements = false; inRecommendations = false; continue; }
+      // These keywords must match the section headers in your Markdown files
+      if (line.includes("Improvements")) { inImprovements = true; inRecommendations = false; continue; }
+      if (line.includes("Recommended Assets")) { inRecommendations = true; inImprovements = false; continue; }
+      if (line.includes("Installed Records") || line.includes("Last Updated")) { inImprovements = false; inRecommendations = false; continue; }
 
       if (inImprovements) {
         const match = line.match(/^\d+\.\s+\*\*(.+?)\*\*\s*—\s*(.+)/);
         if (match) {
-          const priorityMatch = line.match(/优先级:\s*(高|中|低)/);
-          improvements.push({ title: match[1], priority: priorityMatch ? priorityMatch[1] : "中" });
+          // Priority keywords must match those used in your Markdown files
+          const priorityMatch = line.match(/Priority:\s*(High|Medium|Low)/i);
+          improvements.push({ title: match[1], priority: priorityMatch ? priorityMatch[1] : "Medium" });
         }
       }
 

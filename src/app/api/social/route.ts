@@ -110,7 +110,7 @@ export async function GET() {
   } catch (error) {
     console.error("Error fetching social data:", error);
     return NextResponse.json(
-      { error: "无法获取社媒数据" },
+      { error: "Failed to fetch social media data" },
       { status: 500 }
     );
   }

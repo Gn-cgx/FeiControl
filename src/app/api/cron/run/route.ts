@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
         "openclaw",
         [
           "cron", "add",
-          "--name", `恢复 ${jobName}`,
+          "--name", `Re-enable ${jobName}`,
           "--at", atTime,
           "--session", "isolated",
           "--timeout-seconds", "60",
@@ -141,14 +141,14 @@ export async function POST(request: NextRequest) {
     }
 
     const toastMsg = skipped
-      ? "触发成功，今天的定时执行已跳过"
+      ? "Triggered successfully; today's scheduled run has been skipped"
       : "Job triggered successfully";
 
     await createNotification(
       request.url,
       "Cron Job Triggered",
       skipped
-        ? `Job "${id}" 已手动执行，今天的定时执行已跳过，明天 7:00 AM 自动恢复。`
+        ? `Job "${id}" has been manually executed. Today's scheduled run has been skipped and will auto-resume tomorrow at 7:00 AM.`
         : `Job "${id}" has been manually executed.`,
       "success"
     );

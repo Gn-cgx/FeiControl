@@ -138,7 +138,7 @@ export function SkillDetailModal({ skill, onClose }: SkillDetailModalProps) {
             style={{ color: "var(--accent)" }}
           >
             <ExternalLink className="w-4 h-4" />
-            在文档阅览打开
+            Open in Reports
           </a>
         </div>
 

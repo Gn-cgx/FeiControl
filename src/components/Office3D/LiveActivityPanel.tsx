@@ -16,12 +16,12 @@ interface LiveEvent {
 function relativeTime(ts: number): string {
   const diff = Date.now() - ts;
   const seconds = Math.floor(diff / 1000);
-  if (seconds < 30) return '刚刚';
-  if (seconds < 60) return `${seconds}秒前`;
+  if (seconds < 30) return 'Just now';
+  if (seconds < 60) return `${seconds}s ago`;
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}分钟前`;
+  if (minutes < 60) return `${minutes}m ago`;
   const hours = Math.floor(minutes / 60);
-  return `${hours}小时前`;
+  return `${hours}h ago`;
 }
 
 export default function LiveActivityPanel() {
@@ -56,9 +56,9 @@ export default function LiveActivityPanel() {
       >
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-green-500 rounded-full" />
-          <span className="text-sm font-bold">实时动态</span>
+          <span className="text-sm font-bold">Live Activity</span>
           <span className="ml-auto text-xs text-gray-400">
-            {events.length} 条记录
+            {events.length} entries
           </span>
         </div>
         <span className="text-xs text-gray-400">{collapsed ? '▼' : '▲'}</span>
@@ -69,7 +69,7 @@ export default function LiveActivityPanel() {
         <div className="bg-black/40 backdrop-blur-xl rounded-b-xl border border-t-0 border-white/[0.06] max-h-[50vh] overflow-y-auto">
           {events.length === 0 ? (
             <div className="px-4 py-6 text-center text-gray-500 text-sm">
-              暂无动态
+              No activity yet
             </div>
           ) : (
             <div className="divide-y divide-white/5">

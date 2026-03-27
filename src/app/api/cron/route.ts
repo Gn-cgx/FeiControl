@@ -11,25 +11,8 @@ const CRON_JOBS_RETRY_DELAY_MS = 50;
 
 type JsonRecord = Record<string, unknown>;
 
-const RECRUITING_KEYWORDS = [
-  "recruit",
-  "recruiting",
-  "interview",
-  "assessment",
-  "take-home",
-  "coding test",
-  "resume",
-  "linkedin",
-  "application",
-  "offer",
-  "求职",
-  "招聘",
-  "面试",
-  "简历",
-  "投递",
-  "内推",
-  "笔试",
-];
+// User-defined keywords for categorizing/tagging cron jobs.
+// Add domain-specific keywords here to highlight matching jobs in the UI.
 
 function asRecord(value: unknown): JsonRecord | null {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -179,13 +162,13 @@ function getRecurrenceMeta(schedule: JsonRecord | null): {
 } {
   switch (schedule?.kind) {
     case "at":
-      return { kind: "once", label: "一次性任务" };
+      return { kind: "once", label: "One-time" };
     case "cron":
-      return { kind: "recurring", label: "重复任务" };
+      return { kind: "recurring", label: "Recurring" };
     case "every":
-      return { kind: "interval", label: "间隔任务" };
+      return { kind: "interval", label: "Interval" };
     default:
-      return { kind: "unknown", label: "未识别" };
+      return { kind: "unknown", label: "Unknown" };
   }
 }
 
@@ -193,30 +176,30 @@ function getSessionTargetMeta(target: unknown): { label: string; description: st
   switch (target) {
     case "isolated":
       return {
-        label: "独立会话",
-        description: "在单独 session 里执行，不会和当前对话互相打断。",
+        label: "Isolated session",
+        description: "Runs in a separate session without interrupting the current conversation.",
       };
     case "current":
       return {
-        label: "当前会话",
-        description: "任务直接复用当前 session 运行。",
+        label: "Current session",
+        description: "Runs directly within the current session.",
       };
     case "shared":
       return {
-        label: "共享会话",
-        description: "多个任务可能复用同一个 session。",
+        label: "Shared session",
+        description: "Multiple tasks may share the same session.",
       };
     default:
       return {
-        label: readString(target) || "未指定",
-        description: "没有额外说明。",
+        label: readString(target) || "Unspecified",
+        description: "No additional details.",
       };
   }
 }
 
 function formatDeliverySummary(deliveryValue: unknown): string {
   const delivery = asRecord(deliveryValue);
-  if (!delivery) return "默认交付";
+  if (!delivery) return "Default delivery";
 
   const parts: string[] = [];
   const mode = readString(delivery.mode);
@@ -226,23 +209,10 @@ function formatDeliverySummary(deliveryValue: unknown): string {
   if (mode) parts.push(mode);
   if (channel) parts.push(channel === "discord" ? "Discord" : channel);
   if (to) {
-    parts.push(to.startsWith("channel:") ? `频道 ${to.replace("channel:", "")}` : to);
+    parts.push(to.startsWith("channel:") ? `Channel ${to.replace("channel:", "")}` : to);
   }
 
-  return parts.length > 0 ? parts.join(" · ") : "默认交付";
-}
-
-function getRecruitingHint(job: JsonRecord, payloadText: string): string | null {
-  const haystack = [
-    readString(job.name) || "",
-    readString(job.description) || "",
-    payloadText,
-  ]
-    .join(" ")
-    .toLowerCase();
-
-  const match = RECRUITING_KEYWORDS.find((keyword) => haystack.includes(keyword.toLowerCase()));
-  return match || null;
+  return parts.length > 0 ? parts.join(" · ") : "Default delivery";
 }
 
 function hasIssue(state: JsonRecord | null): boolean {
@@ -309,7 +279,6 @@ export async function GET() {
       const sessionTarget = getSessionTargetMeta(job.sessionTarget);
       const nextRunAtMs = readNumber(state?.nextRunAtMs);
       const lastRunAtMs = readNumber(state?.lastRunAtMs);
-      const recruitingHint = getRecruitingHint(job, payloadText);
 
       return {
         id: readString(job.id) || "unknown",
@@ -343,8 +312,6 @@ export async function GET() {
         lastDeliveryStatus: readString(state?.lastDeliveryStatus),
         consecutiveErrors: readNumber(state?.consecutiveErrors) || 0,
         hasIssue: hasIssue(state),
-        isRecruitingTask: Boolean(recruitingHint),
-        recruitingHint,
       };
     });
 

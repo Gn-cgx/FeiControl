@@ -93,20 +93,20 @@ export default function OfficeClient() {
           <div className="rounded-xl border border-white/10 bg-slate-950/70 px-5 py-4 text-center text-sm text-slate-100 shadow-2xl backdrop-blur">
             {status === 'failed' ? (
               <div className="pointer-events-auto space-y-3">
-                <p>3D 办公室加载超时了，我已经自动重试过。</p>
+                <p>3D Office timed out after automatic retries.</p>
                 <button
                   type="button"
                   onClick={() => remountOffice(true)}
                   className="rounded-lg bg-amber-400 px-4 py-2 font-medium text-slate-950 transition hover:bg-amber-300"
                 >
-                  重新加载 3D 办公室
+                  Reload 3D Office
                 </button>
               </div>
             ) : (
               <p>
                 {retryCount === 0
-                  ? '3D 办公室正在加载…'
-                  : `3D 办公室加载异常，正在自动重试（${retryCount}/${MAX_AUTO_RETRIES}）…`}
+                  ? '3D Office is loading...'
+                  : `3D Office failed to load, retrying automatically (${retryCount}/${MAX_AUTO_RETRIES})...`}
               </p>
             )}
           </div>

@@ -54,37 +54,37 @@ export function SystemInfo({ data }: SystemInfoProps) {
   const infoItems = [
     {
       icon: Server,
-      label: "Agent 名称",
+      label: "Agent Name",
       value: `${data.agent.emoji} ${data.agent.name}`,
       sublabel: data.agent.creature,
     },
     {
       icon: Clock,
-      label: "运行时间",
+      label: "Uptime",
       value: data.system.uptimeFormatted,
       sublabel: `${data.system.hostname}`,
     },
     {
       icon: Cpu,
-      label: "Node.js 版本",
+      label: "Node.js Version",
       value: data.system.nodeVersion,
       sublabel: data.system.platform,
     },
     {
       icon: Brain,
-      label: "当前模型",
+      label: "Current Model",
       value: data.system.model.split("/").pop() || data.system.model,
       sublabel: data.system.model.includes("/") ? data.system.model.split("/")[0] : "provider",
     },
     {
       icon: FolderOpen,
-      label: "工作区",
+      label: "Workspace",
       value: data.system.workspacePath.split("/").pop() || "workspace",
       sublabel: data.system.workspacePath,
     },
     {
       icon: HardDrive,
-      label: "内存",
+      label: "Memory",
       value: `${formatBytes(data.system.memory.used)} / ${formatBytes(data.system.memory.total)}`,
       sublabel: `${formatBytes(data.system.memory.free)} free`,
     },

@@ -92,10 +92,10 @@ export default function GitPage() {
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "var(--font-heading)", color: "var(--text-primary)" }}>
-            Git 仪表盘
+            Git Dashboard
           </h1>
           <p style={{ color: "var(--text-secondary)", fontSize: "14px" }}>
-            {repos.length} 个仓库 · {dirtyRepos.length} 有变更
+            {repos.length} repositories · {dirtyRepos.length} with changes
           </p>
         </div>
         <button
@@ -120,11 +120,11 @@ export default function GitPage() {
       ) : repos.length === 0 ? (
         <div style={{ textAlign: "center", padding: "3rem", color: "var(--text-muted)" }}>
           <FolderGit2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p>工作区未找到 Git 仓库</p>
+          <p>No Git repositories found in workspace</p>
         </div>
       ) : (
         <div className="space-y-4">
-          {/* Repos 有变更 first */}
+          {/* Repos with changes first */}
           {[...dirtyRepos, ...cleanRepos].map((repo) => (
             <div
               key={repo.path}

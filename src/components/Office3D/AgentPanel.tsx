@@ -21,11 +21,11 @@ function timeAgo(ts: string | number | undefined): string {
   const ms = typeof ts === 'number' ? ts : new Date(ts).getTime();
   const diff = Date.now() - ms;
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return '刚刚';
-  if (mins < 60) return `${mins} 分钟前`;
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins} min ago`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} 小时前`;
-  return `${Math.floor(hrs / 24)} 天前`;
+  if (hrs < 24) return `${hrs} hr ago`;
+  return `${Math.floor(hrs / 24)} days ago`;
 }
 
 export default function AgentPanel({ agent, state, onClose }: AgentPanelProps) {
@@ -64,7 +64,7 @@ export default function AgentPanel({ agent, state, onClose }: AgentPanelProps) {
     }
   };
 
-  const statusLabel = status === 'working' ? '工作中' : status === 'thinking' ? '思考中' : status === 'error' ? '错误' : status === 'sleeping' ? '休眠' : '空闲';
+  const statusLabel = status === 'working' ? 'Working' : status === 'thinking' ? 'Thinking' : status === 'error' ? 'Error' : status === 'sleeping' ? 'Sleeping' : 'Idle';
 
   return (
     <div className="absolute right-0 top-0 h-full w-full sm:w-96 bg-black/90 backdrop-blur-md text-white p-4 sm:p-6 shadow-2xl border-l border-white/10 overflow-y-auto z-20">
@@ -99,33 +99,33 @@ export default function AgentPanel({ agent, state, onClose }: AgentPanelProps) {
       {/* Current task */}
       {state?.currentTask && (
         <div className="mb-6">
-          <h3 className="text-sm font-semibold text-gray-400 mb-2">当前任务</h3>
+          <h3 className="text-sm font-semibold text-gray-400 mb-2">Current Task</h3>
           <p className="text-base">{state.currentTask}</p>
         </div>
       )}
 
       {/* Stats */}
       <div className="space-y-4 mb-6">
-        <h3 className="text-sm font-semibold text-gray-400">统计</h3>
+        <h3 className="text-sm font-semibold text-gray-400">Stats</h3>
         
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-white/5 p-3 rounded-lg">
-            <p className="text-xs text-gray-400 mb-1">模型</p>
+            <p className="text-xs text-gray-400 mb-1">Model</p>
             <p className="text-sm font-bold">{state?.model || 'N/A'}</p>
           </div>
 
           <div className="bg-white/5 p-3 rounded-lg">
-            <p className="text-xs text-gray-400 mb-1">会话数</p>
+            <p className="text-xs text-gray-400 mb-1">Sessions</p>
             <p className="text-lg font-bold">{state?.sessionCount ?? 0}</p>
           </div>
 
           <div className="bg-white/5 p-3 rounded-lg">
-            <p className="text-xs text-gray-400 mb-1">累计 Tokens</p>
+            <p className="text-xs text-gray-400 mb-1">Total Tokens</p>
             <p className="text-lg font-bold">{formatTokens(state?.totalTokens)}</p>
           </div>
 
           <div className="bg-white/5 p-3 rounded-lg">
-            <p className="text-xs text-gray-400 mb-1">最近活动</p>
+            <p className="text-xs text-gray-400 mb-1">Last Active</p>
             <p className="text-sm font-bold">{timeAgo(state?.lastActivity)}</p>
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function AgentPanel({ agent, state, onClose }: AgentPanelProps) {
 
       {/* Recent Sessions */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-400 mb-3">最近会话</h3>
+        <h3 className="text-sm font-semibold text-gray-400 mb-3">Recent Sessions</h3>
         <div className="space-y-2">
           {state?.recentSessions && state.recentSessions.length > 0 ? (
             state.recentSessions.map((sess, i) => (
@@ -143,7 +143,7 @@ export default function AgentPanel({ agent, state, onClose }: AgentPanelProps) {
               </div>
             ))
           ) : (
-            <div className="bg-white/5 p-3 rounded-lg text-sm text-gray-500">暂无会话记录</div>
+            <div className="bg-white/5 p-3 rounded-lg text-sm text-gray-500">No session history</div>
           )}
         </div>
       </div>

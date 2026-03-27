@@ -94,7 +94,7 @@ export function ActivityFeed({ limit = 10 }: ActivityFeedProps) {
     return (
       <div className="text-center py-12" style={{ color: 'var(--text-secondary)' }}>
         <Zap className="w-12 h-12 mx-auto mb-4 opacity-50" />
-        <p>暂无活动记录</p>
+        <p>No activity yet</p>
       </div>
     );
   }

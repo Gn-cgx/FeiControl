@@ -1,9 +1,9 @@
 'use client';
 
 /**
- * CherryBlossomGarden — 樱花庭院
- * 连接 OpenClaw 宫殿和 ClawTeam 办公室的户外庭院
- * 樱花树从 Walls.tsx 左窗移植到此处
+ * CherryBlossomGarden — Cherry Blossom Garden
+ * Outdoor garden connecting the OpenClaw Palace and ClawTeam Office
+ * Cherry blossom trees transplanted from the Walls.tsx left window
  */
 export default function CherryBlossomGarden() {
   const trees: { pos: [number, number, number]; scale: number }[] = [
@@ -27,12 +27,12 @@ export default function CherryBlossomGarden() {
         </mesh>
       ))}
 
-      {/* 石板小径连接两栋楼 */}
+      {/* Stone path connecting the two buildings */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-19, 0.015, 0]} receiveShadow>
         <planeGeometry args={[8, 3]} />
         <meshStandardMaterial color="#9E9689" roughness={0.9} />
       </mesh>
-      {/* 小径石缝纹理 - 横线 */}
+      {/* Path stone gap texture - horizontal lines */}
       {[-1.2, -0.4, 0.4, 1.2].map((z, i) => (
         <mesh key={`path-line-${i}`} rotation={[-Math.PI / 2, 0, 0]} position={[-19, 0.018, z]}>
           <planeGeometry args={[8, 0.04]} />
@@ -40,7 +40,7 @@ export default function CherryBlossomGarden() {
         </mesh>
       ))}
 
-      {/* 草地 */}
+      {/* Lawn */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-19, 0.005, 0]} receiveShadow>
         <planeGeometry args={[10, 16]} />
         <meshStandardMaterial color="#4A7A3A" roughness={0.95} />
@@ -69,20 +69,20 @@ export default function CherryBlossomGarden() {
         ))}
       </group>
 
-      {/* 樱花树 */}
+      {/* Cherry blossom trees */}
       {trees.map(({ pos, scale }, i) => (
         <group key={`sakura-${i}`} position={pos} scale={scale}>
-          {/* 树干 */}
+          {/* Tree trunk */}
           <mesh position={[0, 1.5, 0]} castShadow>
             <cylinderGeometry args={[0.1, 0.15, 3, 6]} />
             <meshStandardMaterial color="#5C3A1E" roughness={0.8} />
           </mesh>
-          {/* 主花冠 */}
+          {/* Main canopy */}
           <mesh position={[0, 3.2, 0]}>
             <sphereGeometry args={[1.3, 10, 10]} />
             <meshStandardMaterial color="#FFB7C5" roughness={0.8} />
           </mesh>
-          {/* 侧花冠 */}
+          {/* Side canopy */}
           <mesh position={[0.7, 2.8, 0.3]}>
             <sphereGeometry args={[0.8, 8, 8]} />
             <meshStandardMaterial color="#FFC0CB" roughness={0.8} />
@@ -94,15 +94,15 @@ export default function CherryBlossomGarden() {
         </group>
       ))}
 
-      {/* 庭院灯笼 */}
+      {/* Garden lanterns */}
       {[[-21, 0, -6], [-17, 0, -6], [-21, 0, 6], [-17, 0, 6]].map(([x, y, z], i) => (
         <group key={`garden-lantern-${i}`} position={[x, y, z]}>
-          {/* 灯柱 */}
+          {/* Lamp post */}
           <mesh position={[0, 0.75, 0]}>
             <cylinderGeometry args={[0.04, 0.05, 1.5, 6]} />
             <meshStandardMaterial color="#3D2B1F" />
           </mesh>
-          {/* 灯体 */}
+          {/* Lamp body */}
           <mesh position={[0, 1.6, 0]}>
             <boxGeometry args={[0.2, 0.25, 0.2]} />
             <meshStandardMaterial color="#CC4444" emissive="#CC4444" emissiveIntensity={0.3} />

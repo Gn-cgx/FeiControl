@@ -319,14 +319,14 @@ export default function ClawTeamOffice({ members, taskSummary, teamName }: ClawT
         </mesh>
       ))}
 
-      {/* === SIGN: ClawTeam 外包部 === */}
+      {/* === SIGN: ClawTeam Outsourcing Dept === */}
       <group position={[CX, 5.5, -8.4]}>
         <mesh>
           <boxGeometry args={[6, 0.8, 0.05]} />
           <meshStandardMaterial color="#1A237E" roughness={0.5} />
         </mesh>
         <Text position={[0, 0, 0.04]} fontSize={0.35} color="#FFFFFF" anchorX="center" anchorY="middle" fontWeight="bold">
-          🏗️ ClawTeam 外包部
+          🏗️ ClawTeam Outsourcing Dept
         </Text>
       </group>
 

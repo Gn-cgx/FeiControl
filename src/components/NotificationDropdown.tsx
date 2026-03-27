@@ -244,7 +244,7 @@ export function NotificationDropdown() {
                 Notifications
               </h3>
               <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-                {unreadCount > 0 ? `${unreadCount} 条未读` : "全部已读！"}
+                {unreadCount > 0 ? `${unreadCount} Unread` : "All read!"}
               </p>
             </div>
 
@@ -253,7 +253,7 @@ export function NotificationDropdown() {
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
-                  title="全部标为已读"
+                  title="Mark all as read"
                   style={{
                     padding: "6px",
                     borderRadius: "6px",
@@ -281,7 +281,7 @@ export function NotificationDropdown() {
               {notifications.some((n) => n.read) && (
                 <button
                   onClick={clearRead}
-                  title="清除已读通知"
+                  title="Clear read notifications"
                   style={{
                     padding: "6px",
                     borderRadius: "6px",
@@ -444,7 +444,7 @@ export function NotificationDropdown() {
                               e.stopPropagation();
                               markAsRead(notification.id);
                             }}
-                            title="标为已读"
+                            title="Mark as read"
                             style={{
                               padding: "4px",
                               borderRadius: "4px",
@@ -474,7 +474,7 @@ export function NotificationDropdown() {
                             e.stopPropagation();
                             deleteNotification(notification.id);
                           }}
-                          title="删除"
+                          title="Delete"
                           style={{
                             padding: "4px",
                             borderRadius: "4px",
