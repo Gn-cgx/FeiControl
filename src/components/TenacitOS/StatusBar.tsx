@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Cpu, HardDrive, MemoryStick, Shield, ShieldCheck, Clock } from "lucide-react";
+import { Cpu, HardDrive, MemoryStick, ShieldCheck, Clock } from "lucide-react";
 
 interface SystemStats {
   cpu: number;
@@ -23,7 +23,7 @@ export function StatusBar() {
     firewallActive: true,
     activeServices: 0,
     totalServices: 4,
-    uptime: "0d 0h",
+    uptime: "0天 0时",
   });
 
   useEffect(() => {
@@ -35,12 +35,12 @@ export function StatusBar() {
           setStats(data);
         }
       } catch (error) {
-        console.error("Failed to fetch system stats:", error);
+        console.error("获取系统状态失败:", error);
       }
     };
 
     fetchStats();
-    const interval = setInterval(fetchStats, 10000); // Update every 10s
+    const interval = setInterval(fetchStats, 10000);
 
     return () => clearInterval(interval);
   }, []);
@@ -51,7 +51,6 @@ export function StatusBar() {
   const diskPercent = (stats.disk.used / stats.disk.total) * 100;
   const diskColor = diskPercent < 60 ? "var(--positive)" : diskPercent < 85 ? "var(--warning)" : "var(--negative)";
 
-  // StatusMetric component
   const StatusMetric = ({ icon: Icon, label, value, barPercent, color }: any) => (
     <div className="flex items-center gap-1.5" style={{ height: "24px" }}>
       <Icon style={{ width: "14px", height: "14px", color: "var(--text-muted)" }} />
@@ -92,6 +91,7 @@ export function StatusBar() {
               height: "100%",
               backgroundColor: color,
               borderRadius: "2px",
+              boxShadow: `0 0 4px ${color}`,
             }}
           />
         </div>
@@ -112,7 +112,7 @@ export function StatusBar() {
         borderTop: "1px solid var(--border)",
         display: "flex",
         alignItems: "center",
-        padding: "0 16px 0 84px", /* desktop only; hidden on mobile via layout */
+        padding: "0 16px 0 84px",
         gap: "16px",
         zIndex: 40,
       }}
@@ -123,7 +123,7 @@ export function StatusBar() {
       {/* RAM */}
       <StatusMetric
         icon={MemoryStick}
-        label="RAM"
+        label="内存"
         value={`${stats.ram.used.toFixed(1)}/${stats.ram.total}GB`}
         barPercent={ramPercent}
         color={ramColor}
@@ -132,7 +132,7 @@ export function StatusBar() {
       {/* Disk */}
       <StatusMetric
         icon={HardDrive}
-        label="DISK"
+        label="磁盘"
         value={`${diskPercent.toFixed(0)}%`}
         barPercent={diskPercent}
         color={diskColor}
@@ -149,6 +149,7 @@ export function StatusBar() {
             height: "6px",
             borderRadius: "50%",
             backgroundColor: stats.vpnActive ? "var(--positive)" : "var(--negative)",
+            boxShadow: stats.vpnActive ? "0 0 4px var(--positive)" : "none",
           }}
         />
         <span
@@ -182,14 +183,14 @@ export function StatusBar() {
             color: "var(--text-muted)",
           }}
         >
-          UFW
+          防火墙
         </span>
       </div>
 
       {/* Separator */}
       <div style={{ width: "1px", height: "16px", backgroundColor: "var(--border)" }} />
 
-      {/* Systemd Services */}
+      {/* Services */}
       <div className="flex items-center gap-1">
         <span
           style={{
@@ -199,7 +200,7 @@ export function StatusBar() {
             color: "var(--text-muted)",
           }}
         >
-          SVC: {stats.activeServices}/{stats.totalServices}
+          服务: {stats.activeServices}/{stats.totalServices}
         </span>
       </div>
 
@@ -217,7 +218,7 @@ export function StatusBar() {
             color: "var(--text-muted)",
           }}
         >
-          Uptime: {stats.uptime}
+          运行时间: {stats.uptime}
         </span>
       </div>
     </div>
