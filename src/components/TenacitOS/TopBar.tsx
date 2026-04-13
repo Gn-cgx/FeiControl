@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Bell, User, Command } from "lucide-react";
+import { Search } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { NotificationDropdown } from "@/components/NotificationDropdown";
@@ -11,7 +11,6 @@ export function TopBar() {
   const [showSearch, setShowSearch] = useState(false);
   const isMobile = useIsMobile();
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -54,9 +53,10 @@ export function TopBar() {
               fontFamily: "var(--font-heading)",
               fontSize: isMobile ? "14px" : "16px",
               fontWeight: 700,
-              color: "var(--text-primary)",
-              letterSpacing: "-0.5px",
+              color: "var(--accent)",
+              letterSpacing: "1px",
               whiteSpace: "nowrap",
+              textShadow: "0 0 10px rgba(0, 245, 255, 0.5)",
             }}
           >
             {BRANDING.appTitle}
@@ -67,6 +67,7 @@ export function TopBar() {
                 backgroundColor: "var(--accent-soft)",
                 borderRadius: "4px",
                 padding: "2px 8px",
+                border: "1px solid rgba(0, 245, 255, 0.3)",
               }}
             >
               <span
@@ -86,7 +87,6 @@ export function TopBar() {
 
         {/* Right: Search + Notifications + User */}
         <div className="flex items-center gap-2">
-          {/* Search: icon-only on mobile, full on desktop */}
           {isMobile ? (
             <button
               onClick={() => setShowSearch(true)}
@@ -114,6 +114,7 @@ export function TopBar() {
                 backgroundColor: "var(--surface-elevated)",
                 borderRadius: "6px",
                 padding: "0 12px",
+                border: "1px solid var(--border)",
               }}
             >
               <Search
@@ -121,7 +122,7 @@ export function TopBar() {
                 style={{ width: "16px", height: "16px", color: "var(--text-muted)" }}
               />
               <span style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--text-muted)" }}>
-                Search... ⌘K
+                搜索... ⌘K
               </span>
             </button>
           )}
@@ -129,7 +130,7 @@ export function TopBar() {
           {/* Notifications Dropdown */}
           <NotificationDropdown />
 
-          {/* User Area - hide name on mobile */}
+          {/* User Area */}
           <div className="flex items-center gap-2">
             <div
               style={{
@@ -140,9 +141,10 @@ export function TopBar() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                boxShadow: "0 0 8px rgba(0, 245, 255, 0.4)",
               }}
             >
-              <span style={{ fontFamily: "var(--font-heading)", fontSize: "12px", fontWeight: 700, color: "var(--text-primary)" }}>
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "12px", fontWeight: 700, color: "#0a0a0f" }}>
                 {BRANDING.ownerUsername.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -159,7 +161,7 @@ export function TopBar() {
       {showSearch && (
         <div
           className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh]"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.8)" }}
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.85)" }}
           onClick={() => setShowSearch(false)}
         >
           <div
