@@ -20,19 +20,19 @@ import {
 import { useState } from "react";
 
 const dockItems = [
-  { href: "/", label: "Dashboard", icon: Home },
-  { href: "/calendar", label: "Calendar", icon: Calendar },
-  { href: "/social", label: "Social Media", icon: Share2 },
-  { href: "/files", label: "Files", icon: FolderOpen },
-  { href: "/memory", label: "Reports", icon: Brain },
-  { href: "/office", label: "3D Office", icon: Building2 },
-  { href: "/cron", label: "Cron Jobs", icon: Clock },
-  { href: "/skills", label: "Skills", icon: Puzzle },
-  { href: "/costs", label: "Cost Analysis", icon: DollarSign },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/", label: "主控台", icon: Home },
+  { href: "/calendar", label: "日历", icon: Calendar },
+  { href: "/social", label: "社交媒体", icon: Share2 },
+  { href: "/files", label: "文件", icon: FolderOpen },
+  { href: "/memory", label: "报告", icon: Brain },
+  { href: "/office", label: "3D办公室", icon: Building2 },
+  { href: "/cron", label: "定时任务", icon: Clock },
+  { href: "/skills", label: "技能库", icon: Puzzle },
+  { href: "/costs", label: "费用分析", icon: DollarSign },
+  { href: "/settings", label: "设置", icon: Settings },
 ];
 
-// Mobile: show top 5 in tab bar, rest in "more" drawer
+// Mobile: show top 4 in tab bar, rest in "more" drawer
 const mobileTabItems = dockItems.slice(0, 4);
 const mobileMoreItems = dockItems.slice(4);
 
@@ -42,7 +42,6 @@ export function Dock() {
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Check if current path is in "more" items
   const isMoreActive = mobileMoreItems.some(
     (item) => pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
   );
@@ -63,7 +62,7 @@ export function Dock() {
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
             borderTop: isOffice
-              ? "1px solid rgba(255, 255, 255, 0.08)"
+              ? "1px solid rgba(0, 245, 255, 0.15)"
               : "1px solid var(--border)",
             display: "flex",
             alignItems: "center",
@@ -78,10 +77,10 @@ export function Dock() {
               pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
             const Icon = item.icon;
             const iconColor = isOffice
-              ? isActive ? "#FFFFFF" : "rgba(255,255,255,0.5)"
+              ? isActive ? "#00f5ff" : "rgba(255,255,255,0.5)"
               : isActive ? "var(--accent)" : "var(--text-secondary)";
             const labelColor = isOffice
-              ? isActive ? "#FFFFFF" : "rgba(255,255,255,0.4)"
+              ? isActive ? "#00f5ff" : "rgba(255,255,255,0.4)"
               : isActive ? "var(--accent)" : "var(--text-muted)";
 
             return (
@@ -102,7 +101,7 @@ export function Dock() {
                 }}
               >
                 <Icon style={{ width: "22px", height: "22px", color: iconColor, strokeWidth: isActive ? 2.5 : 2 }} />
-                <span style={{ fontSize: "10px", fontWeight: isActive ? 600 : 500, color: labelColor }}>{item.label.split(" ")[0]}</span>
+                <span style={{ fontSize: "10px", fontWeight: isActive ? 600 : 500, color: labelColor }}>{item.label.split("")[0]}</span>
               </Link>
             );
           })}
@@ -130,7 +129,7 @@ export function Dock() {
                 width: "22px",
                 height: "22px",
                 color: isMoreActive
-                  ? (isOffice ? "#FFFFFF" : "var(--accent)")
+                  ? (isOffice ? "#00f5ff" : "var(--accent)")
                   : (isOffice ? "rgba(255,255,255,0.5)" : "var(--text-secondary)"),
                 strokeWidth: isMoreActive ? 2.5 : 2,
               }}
@@ -140,11 +139,11 @@ export function Dock() {
                 fontSize: "10px",
                 fontWeight: isMoreActive ? 600 : 500,
                 color: isMoreActive
-                  ? (isOffice ? "#FFFFFF" : "var(--accent)")
+                  ? (isOffice ? "#00f5ff" : "var(--accent)")
                   : (isOffice ? "rgba(255,255,255,0.4)" : "var(--text-muted)"),
               }}
             >
-              More
+              更多
             </span>
           </button>
         </nav>
@@ -155,7 +154,7 @@ export function Dock() {
             style={{
               position: "fixed",
               inset: 0,
-              backgroundColor: "rgba(0,0,0,0.6)",
+              backgroundColor: "rgba(0,0,0,0.7)",
               zIndex: 55,
             }}
             onClick={() => setDrawerOpen(false)}
@@ -179,7 +178,7 @@ export function Dock() {
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: "16px", fontWeight: 700, color: "var(--text-primary)" }}>More</span>
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "16px", fontWeight: 700, color: "var(--text-primary)" }}>更多功能</span>
             <button onClick={() => setDrawerOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", padding: "8px" }}>
               <X style={{ width: "20px", height: "20px", color: "var(--text-secondary)" }} />
             </button>
@@ -231,7 +230,7 @@ export function Dock() {
         backdropFilter: isOffice ? "blur(20px)" : undefined,
         WebkitBackdropFilter: isOffice ? "blur(20px)" : undefined,
         borderRight: isOffice
-          ? "1px solid rgba(255, 255, 255, 0.08)"
+          ? "1px solid rgba(0, 245, 255, 0.15)"
           : "1px solid var(--border)",
         display: "flex",
         flexDirection: "column",
@@ -246,19 +245,19 @@ export function Dock() {
         const Icon = item.icon;
 
         const iconColor = isOffice
-          ? isActive ? "#FFFFFF" : "rgba(255,255,255,0.5)"
+          ? isActive ? "#00f5ff" : "rgba(255,255,255,0.5)"
           : isActive ? "var(--accent)" : "var(--text-secondary)";
 
         const labelColor = isOffice
-          ? isActive ? "#FFFFFF" : "rgba(255,255,255,0.4)"
+          ? isActive ? "#00f5ff" : "rgba(255,255,255,0.4)"
           : isActive ? "var(--accent)" : "var(--text-muted)";
 
         const activeBg = isOffice
-          ? "rgba(255, 255, 255, 0.1)"
+          ? "rgba(0, 245, 255, 0.08)"
           : "var(--accent-soft)";
 
         const hoverBg = isOffice
-          ? "rgba(255, 255, 255, 0.1)"
+          ? "rgba(0, 245, 255, 0.05)"
           : "var(--surface-hover)";
 
         return (
@@ -279,6 +278,7 @@ export function Dock() {
               transition: "all 150ms ease",
               position: "relative",
               textDecoration: "none",
+              border: isActive ? "1px solid rgba(0, 245, 255, 0.2)" : "1px solid transparent",
             }}
             onMouseEnter={(e) => {
               if (!isActive) {
@@ -313,7 +313,7 @@ export function Dock() {
                 maxWidth: "52px",
               }}
             >
-              {item.label.split(" ")[0]}
+              {item.label}
             </span>
 
             <span
